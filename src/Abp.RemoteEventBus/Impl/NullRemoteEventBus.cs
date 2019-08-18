@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,22 +12,22 @@ namespace Abp.RemoteEventBus
 
         public void Dispose()
         {
-            
+
         }
 
-        public void MessageHandle(string topic, string message)
+        public void MessageHandle(string topic, byte[] message)
         {
-            
+
         }
 
         public void Publish(IRemoteEventData eventData)
         {
-            
+
         }
 
         public void Publish(string topic, IRemoteEventData eventData)
         {
-            
+
         }
 
         public Task PublishAsync(IRemoteEventData eventData)
@@ -42,12 +42,12 @@ namespace Abp.RemoteEventBus
 
         public void Subscribe(string topic)
         {
-            
+
         }
 
         public void Subscribe(IEnumerable<string> topics)
         {
-            
+
         }
 
         public Task SubscribeAsync(string topic)
@@ -62,17 +62,17 @@ namespace Abp.RemoteEventBus
 
         public void Unsubscribe(string topic)
         {
-            
+
         }
 
         public void Unsubscribe(IEnumerable<string> topics)
         {
-            
+
         }
 
         public void UnsubscribeAll()
         {
-            
+
         }
 
         public Task UnsubscribeAllAsync()

@@ -1,4 +1,4 @@
-﻿using RabbitMQ.Client;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Abp.RemoteEventBus.RabbitMQ
             _connectionsAcquired = new List<IConnection>();
         }
 
-        public void Subscribe(IEnumerable<string> topics, Action<string, string> handler)
+        public void Subscribe(IEnumerable<string> topics, Action<string, byte[]> handler)
         {
             var existsTopics = topics.ToList().Where(p => _dictionary.ContainsKey(p));
             if (existsTopics.Any())
@@ -43,13 +43,13 @@ namespace Abp.RemoteEventBus.RabbitMQ
                 {
                     var channel = connection.CreateModel();
                     var queue = _queuePrefix + topic;
-                    channel.ExchangeDeclare(_exchangeTopic, "topic",true);
+                    channel.ExchangeDeclare(_exchangeTopic, "topic", true);
                     channel.QueueDeclare(queue, true, false, false, null);
                     channel.QueueBind(queue, _exchangeTopic, topic);
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (ch, ea) =>
                     {
-                        handler(ea.RoutingKey, Encoding.UTF8.GetString(ea.Body));
+                        handler(ea.RoutingKey, ea.Body);
                         channel.BasicAck(ea.DeliveryTag, false);
                     };
                     channel.BasicConsume(queue, false, consumer);
@@ -62,7 +62,7 @@ namespace Abp.RemoteEventBus.RabbitMQ
             }
         }
 
-        public Task SubscribeAsync(IEnumerable<string> topics, Action<string, string> handler)
+        public Task SubscribeAsync(IEnumerable<string> topics, Action<string, byte[]> handler)
         {
             return Task.Factory.StartNew(() => Subscribe(topics, handler));
         }

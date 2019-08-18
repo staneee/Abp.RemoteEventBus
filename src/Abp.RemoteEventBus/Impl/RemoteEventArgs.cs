@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Abp.Events.Bus;
@@ -11,7 +11,7 @@ namespace Abp.RemoteEventBus
 
         public string Topic { get; set; }
 
-        public string Message { get; set; }
+        public byte[] Message { get; set; }
 
         public bool Suspended { get; set; }
 
@@ -19,7 +19,7 @@ namespace Abp.RemoteEventBus
 
         public object EventSource { get; set; }
 
-        public RemoteEventArgs(IRemoteEventData eventData, string topic,string message)
+        public RemoteEventArgs(IRemoteEventData eventData, string topic, byte[] message)
         {
             EventData = eventData;
             Message = message;

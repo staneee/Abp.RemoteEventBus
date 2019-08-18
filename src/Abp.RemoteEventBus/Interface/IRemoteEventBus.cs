@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,7 +6,7 @@ namespace Abp.RemoteEventBus
 {
     public interface IRemoteEventBus : IDisposable
     {
-        void MessageHandle(string topic, string message);
+        void MessageHandle(string topic, byte[] message);
 
         void Publish(IRemoteEventData eventData);
 

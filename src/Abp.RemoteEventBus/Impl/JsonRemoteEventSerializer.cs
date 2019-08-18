@@ -1,10 +1,11 @@
-﻿using Abp.Dependency;
+using Abp.Dependency;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Text;
 
 namespace Abp.RemoteEventBus.Impl
 {
-    public class JsonRemoteEventSerializer : IRemoteEventSerializer,ISingletonDependency
+    public class JsonRemoteEventSerializer : IRemoteEventSerializer, ISingletonDependency
     {
         private readonly JsonSerializerSettings settings;
 
@@ -16,14 +17,17 @@ namespace Abp.RemoteEventBus.Impl
             };
         }
 
-        public T Deserialize<T>(string value)
+        public T Deserialize<T>(byte[] value)
         {
-            return JsonConvert.DeserializeObject<T>(value, settings);
+            var valueString = Encoding.UTF8.GetString(value);
+
+            return JsonConvert.DeserializeObject<T>(valueString, settings);
         }
 
-        public string Serialize(object value)
+        public byte[] Serialize(object value)
         {
-            return JsonConvert.SerializeObject(value, settings);
+            var resultString = JsonConvert.SerializeObject(value, settings);
+            return Encoding.UTF8.GetBytes(resultString);
         }
     }
 }

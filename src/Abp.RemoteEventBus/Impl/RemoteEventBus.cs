@@ -1,4 +1,4 @@
-﻿using Abp.RemoteEventBus.Exceptions;
+using Abp.RemoteEventBus.Exceptions;
 using Castle.Core.Logging;
 using System;
 using System.Collections.Generic;
@@ -66,12 +66,12 @@ namespace Abp.RemoteEventBus
 
         public void Subscribe(string topic)
         {
-            Subscribe(new[] {topic});
+            Subscribe(new[] { topic });
         }
 
         public Task SubscribeAsync(string topic)
         {
-            return SubscribeAsync(new[] {topic});
+            return SubscribeAsync(new[] { topic });
         }
 
         public void Subscribe(IEnumerable<string> topics)
@@ -88,12 +88,12 @@ namespace Abp.RemoteEventBus
 
         public void Unsubscribe(string topic)
         {
-            Unsubscribe(new[] {topic});
+            Unsubscribe(new[] { topic });
         }
 
         public Task UnsubscribeAsync(string topic)
         {
-            return UnsubscribeAsync(new[] {topic});
+            return UnsubscribeAsync(new[] { topic });
         }
 
         public void Unsubscribe(IEnumerable<string> topics)
@@ -108,7 +108,7 @@ namespace Abp.RemoteEventBus
                 .ContinueWith((s) => Logger.Debug($"Unsubscribed topics {string.Join(",", topics)}"));
         }
 
-        public virtual void MessageHandle(string topic, string message)
+        public virtual void MessageHandle(string topic, byte[] message)
         {
             Logger.Debug($"Receive message on topic {topic}");
             try

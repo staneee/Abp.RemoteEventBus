@@ -1,9 +1,9 @@
-﻿namespace Abp.RemoteEventBus
+namespace Abp.RemoteEventBus
 {
     public interface IRemoteEventSerializer
     {
-        T Deserialize<T>(string value);
+        T Deserialize<T>(byte[] value);
 
-        string Serialize(object value);
+        byte[] Serialize(object value);
     }
 }
