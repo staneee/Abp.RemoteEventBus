@@ -1,4 +1,4 @@
-﻿using Abp.Dependency;
+using Abp.Dependency;
 using Commons.Pool;
 using RabbitMQ.Client;
 using System;
@@ -7,11 +7,14 @@ using System.Text;
 
 namespace Abp.RemoteEventBus.RabbitMQ
 {
-    public class PooledObjectFactory : IPooledObjectFactory<IConnection>
+    /// <summary>
+    /// RabbitMQ 连接池
+    /// </summary>
+    public class RabbitMQConnectionPooledObjectFactory : IPooledObjectFactory<IConnection>
     {
         private ConnectionFactory _connectionFactory;
 
-        public PooledObjectFactory(IRabbitMQSetting rabbitMQSetting)
+        public RabbitMQConnectionPooledObjectFactory(IRabbitMQSetting rabbitMQSetting)
         {
             Check.NotNullOrWhiteSpace(rabbitMQSetting.Url, "Url");
             _connectionFactory = new ConnectionFactory

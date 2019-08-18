@@ -12,6 +12,7 @@ namespace Abp.RemoteEventBus.RabbitMQ
         private readonly IObjectPool<IConnection> _connectionPool;
 
         private readonly IRemoteEventSerializer _remoteEventSerializer;
+        private readonly IRabbitMQSetting _rabbitMQSetting;
 
         private bool _disposed;
 
@@ -26,8 +27,10 @@ namespace Abp.RemoteEventBus.RabbitMQ
             _connectionPool = poolManager.NewPool<IConnection>()
                                     .InitialSize(rabbitMQSetting.InitialSize)
                                     .MaxSize(rabbitMQSetting.MaxSize)
-                                    .WithFactory(new PooledObjectFactory(rabbitMQSetting))
+                                    .WithFactory(new RabbitMQConnectionPooledObjectFactory(rabbitMQSetting))
                                     .Instance();
+
+            _rabbitMQSetting = rabbitMQSetting;
         }
 
         public void Publish(string topic, IRemoteEventData remoteEventData)
@@ -35,12 +38,26 @@ namespace Abp.RemoteEventBus.RabbitMQ
             var connection = _connectionPool.Acquire();
             try
             {
-                var channel = connection.CreateModel();
-                channel.ExchangeDeclare(_exchangeTopic, "topic", true);
                 var body = _remoteEventSerializer.Serialize(remoteEventData);
+
+                var channel = connection.CreateModel();
+                channel.ExchangeDeclare(exchange: topic,
+                    type: ExchangeType.Fanout,
+                    durable: false,
+                    autoDelete: false,
+                    arguments: null);
+                channel.QueueDeclare(queue: $"{topic}_queue",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
                 var properties = channel.CreateBasicProperties();
                 properties.Persistent = true;
-                channel.BasicPublish(_exchangeTopic, topic, properties, body);
+                channel.BasicPublish(
+                    exchange: topic,
+                    routingKey: topic,
+                    basicProperties: properties,
+                    body: body);
             }
             finally
             {

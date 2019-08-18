@@ -13,7 +13,7 @@ namespace Abp.RemoteEventBus.RabbitMQ
     {
         private readonly ConcurrentDictionary<string, IModel> _dictionary;
         private readonly List<IConnection> _connectionsAcquired;
-        private readonly PooledObjectFactory _factory;
+        private readonly RabbitMQConnectionPooledObjectFactory _factory;
 
         private string _exchangeTopic = "RemoteEventBus.Exchange.Topic";
         private string _queuePrefix = "RemoteEventBus.Queue.";
@@ -22,7 +22,7 @@ namespace Abp.RemoteEventBus.RabbitMQ
 
         public RabbitMQRemoteEventSubscriber(IRabbitMQSetting rabbitMQSetting)
         {
-            _factory = new PooledObjectFactory(rabbitMQSetting);
+            _factory = new RabbitMQConnectionPooledObjectFactory(rabbitMQSetting);
             _dictionary = new ConcurrentDictionary<string, IModel>();
             _connectionsAcquired = new List<IConnection>();
         }

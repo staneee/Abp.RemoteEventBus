@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Abp.Dependency;
 using Castle.MicroKernel.Registration;
 
@@ -6,10 +6,15 @@ namespace Abp.RemoteEventBus.RabbitMQ
 {
     public static class ConfigurationExtensions
     {
+        /// <summary>
+        /// 扩展
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         public static IRabbitMQConfiguration UseRabbitMQ(this IRemoteEventBusConfiguration configuration)
         {
             var iocManager = configuration.AbpStartupConfiguration.IocManager;
-            
+
             iocManager.IocContainer.Register(
                 Component.For<IRemoteEventPublisher>().ImplementedBy<RabbitMQRemoteEventPublisher>()
                     .LifestyleSingleton().IsDefault()
