@@ -15,22 +15,22 @@ namespace Abp.RemoteEventBus.RabbitMQ.Test
                 f.UseAbpLog4Net().WithConfig("log4net.config"));
 
             bootstrapper.Initialize();
-            
-            var remoteEventBus=bootstrapper.IocManager.Resolve<IRemoteEventBus>();
+
+            var remoteEventBus = bootstrapper.IocManager.Resolve<IRemoteEventBus>();
 
             Task.Factory.StartNew(() =>
             {
                 while (true)
-                {       
+                {
                     const string type = "Type_Test";
                     const string topic = "Topic_Test";
                     var eventDate = new RemoteEventData(type)
                     {
-                        Data = {["playload"] = DateTime.Now}
+                        Data = { ["playload"] = DateTime.Now }
                     };
                     remoteEventBus.Publish(topic, eventDate);
 
-                    Task.Delay(1000).Wait();
+                    Console.ReadKey();
                 }
             });
 
