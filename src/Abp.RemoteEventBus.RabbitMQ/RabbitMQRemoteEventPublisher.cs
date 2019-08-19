@@ -12,8 +12,8 @@ namespace Abp.RemoteEventBus.RabbitMQ
         private readonly IRemoteEventSerializer _remoteEventSerializer;
         private readonly IRabbitMQSetting _rabbitMQSetting;
 
-        private readonly string _topicPrefix = "";
-        private readonly string _queuePrefix = "";
+        private readonly string _topicPrefix;
+        private readonly string _queuePrefix;
 
         private bool _disposed;
 
@@ -33,8 +33,8 @@ namespace Abp.RemoteEventBus.RabbitMQ
 
             _rabbitMQSetting = rabbitMQSetting;
 
-            _topicPrefix = rabbitMQSetting.TopicPrefix;
-            _queuePrefix = rabbitMQSetting.QueuePrefix;
+            _topicPrefix = rabbitMQSetting.TopicPrefix ?? string.Empty;
+            _queuePrefix = rabbitMQSetting.QueuePrefix ?? string.Empty;
 
         }
 
