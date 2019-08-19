@@ -15,7 +15,9 @@ namespace Abp.RemoteEventBus.RabbitMQ.Test
         {
             Configuration.Modules.RemoteEventBus().UseRabbitMQ().Configure(setting =>
             {
-                setting.Url = "amqp://guest:guest@127.0.0.1:5672/";
+                // TODO: 链接字符串
+                //setting.Url = "amqp://root:ms877350@10.3.2.154:15672/";
+                setting.Url = "amqp://root:ms877350@10.3.2.154:5672/";
             });
 
             Configuration.Modules.RemoteEventBus().AutoSubscribe();

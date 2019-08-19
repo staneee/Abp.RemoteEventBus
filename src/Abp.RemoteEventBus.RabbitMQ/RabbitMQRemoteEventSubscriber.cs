@@ -15,8 +15,8 @@ namespace Abp.RemoteEventBus.RabbitMQ
         private readonly List<IConnection> _connectionsAcquired;
         private readonly RabbitMQConnectionPooledObjectFactory _factory;
 
-        private string _exchangeTopic = "RemoteEventBus.Exchange.Topic";
-        private string _queuePrefix = "RemoteEventBus.Queue.";
+        private readonly string _topicPrefix = "";
+        private readonly string _queuePrefix = "";
 
         private bool _disposed;
 
@@ -25,6 +25,9 @@ namespace Abp.RemoteEventBus.RabbitMQ
             _factory = new RabbitMQConnectionPooledObjectFactory(rabbitMQSetting);
             _dictionary = new ConcurrentDictionary<string, IModel>();
             _connectionsAcquired = new List<IConnection>();
+
+            _topicPrefix = rabbitMQSetting.TopicPrefix;
+            _queuePrefix = rabbitMQSetting.QueuePrefix;
         }
 
         public void Subscribe(IEnumerable<string> topics, Action<string, byte[]> handler)
@@ -41,18 +44,36 @@ namespace Abp.RemoteEventBus.RabbitMQ
                 _connectionsAcquired.Add(connection);
                 try
                 {
+                    var topicName = $"{_topicPrefix}_{topic}";
+                    var queueName = $"{topic}_{_queuePrefix}_queue";
+
                     var channel = connection.CreateModel();
-                    var queue = _queuePrefix + topic;
-                    channel.ExchangeDeclare(_exchangeTopic, "topic", true);
-                    channel.QueueDeclare(queue, true, false, false, null);
-                    channel.QueueBind(queue, _exchangeTopic, topic);
+                    channel.ExchangeDeclare(exchange: topicName,
+                        type: ExchangeType.Fanout,
+                        durable: false,
+                        autoDelete: false,
+                        arguments: null);
+                    channel.QueueDeclare(queue: queueName,
+                        durable: false,
+                        exclusive: false,
+                        autoDelete: false,
+                        arguments: null);
+
+                    channel.QueueBind(queue: queueName,
+                        exchange: topicName,
+                        routingKey: topicName);
+
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (ch, ea) =>
                     {
                         handler(ea.RoutingKey, ea.Body);
                         channel.BasicAck(ea.DeliveryTag, false);
                     };
-                    channel.BasicConsume(queue, false, consumer);
+                    channel.BasicConsume(queue: queueName,
+                        autoAck: false,
+                        consumer: consumer);
+
+                    // topic和通道关联
                     _dictionary[topic] = channel;
                 }
                 finally
