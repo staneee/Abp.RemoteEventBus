@@ -10,6 +10,9 @@ using Abp.RemoteEventBus.Exceptions;
 
 namespace Abp.RemoteEventBus.Impl
 {
+    /// <summary>
+    /// 订阅处理分发者
+    /// </summary>
     public class AttributeRemoteEventHandler : IEventHandler<RemoteEventArgs>, ISingletonDependency
     {
         public ILogger Logger { get; set; }
@@ -32,6 +35,7 @@ namespace Abp.RemoteEventBus.Impl
 
             _typeMapping = new Dictionary<string, List<Tuple<Type, RemoteEventHandlerAttribute>>>();
 
+            // 注册类型
             _typeFinder.Find(type => Attribute.IsDefined(type, typeof(RemoteEventHandlerAttribute), false) && typeof(IRemoteEventHandler).IsAssignableFrom(type))
                 .ToList().ForEach(type =>
                 {
@@ -50,6 +54,10 @@ namespace Abp.RemoteEventBus.Impl
                 });
         }
 
+        /// <summary>
+        /// 分发订阅
+        /// </summary>
+        /// <param name="eventArgs"></param>
         public void HandleEvent(RemoteEventArgs eventArgs)
         {
             var key = eventArgs.EventData.Type;

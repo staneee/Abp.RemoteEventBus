@@ -3,12 +3,12 @@ using Castle.Core.Logging;
 
 namespace Abp.RemoteEventBus.RabbitMQ.Test
 {
-    [RemoteEventHandler(ForType = "Type_Test", ForTopic = "Topic_Test")]
-    public class RemoteEventHandler : IRemoteEventHandler, ITransientDependency
+    [RemoteEventHandler(ForType = "Type_Test1", ForTopic = "Topic_Test1")]
+    public class TestEventHandler : IRemoteEventHandler, ITransientDependency
     {
         public ILogger Logger { get; set; }
 
-        public RemoteEventHandler()
+        public TestEventHandler()
         {
             Logger = NullLogger.Instance;
         }

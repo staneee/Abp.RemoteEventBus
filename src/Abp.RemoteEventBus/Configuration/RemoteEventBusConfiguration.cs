@@ -30,6 +30,10 @@ namespace Abp.RemoteEventBus.RabbitMQ
             Logger = NullLogger.Instance;
         }
 
+        /// <summary>
+        /// 扫描程序集自动注册订阅
+        /// </summary>
+        /// <returns></returns>
         public IRemoteEventBusConfiguration AutoSubscribe()
         {
             var topics = new List<string>();

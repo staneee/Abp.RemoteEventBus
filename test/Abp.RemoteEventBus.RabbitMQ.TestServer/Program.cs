@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Abp.Castle.Logging.Log4Net;
 using Castle.Facilities.Logging;
 
-namespace Abp.RemoteEventBus.RabbitMQ.Test
+namespace Abp.RemoteEventBus.RabbitMQ.TestServer
 {
     class Program
     {

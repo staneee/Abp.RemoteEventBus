@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>RemoteEventBus</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Commons" Version="0.4.0.1347" />
+    <PackageReference Include="Commons.Pool" Version="0.4.0.1347" />
+    <PackageReference Include="EasyNetQ" Version="3.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RemoteEventBus\RemoteEventBus.csproj" />
+  </ItemGroup>
+
+</Project>
