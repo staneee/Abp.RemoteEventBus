@@ -84,31 +84,17 @@ namespace RemoteEventBus.Impl
             RabbitMQClientPublish<THandler, TEntity>(eventData);
         }
 
-        public void Subscribe<THandler, TEntity>(THandler instance, string topic)
+        public void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
            where THandler : IRemoteEventHandler<TEntity>
            where TEntity : class, new()
         {
             if (_rabbitMQSetting.UseEasyNetQ)
             {
-                EasyNetQSubscribe<THandler, TEntity>(instance);
+                EasyNetQSubscribe<THandler, TEntity>(instance, topic);
                 return;
             }
 
             RabbitMQClientSubscribe<THandler, TEntity>(instance, topic);
-        }
-
-        public void Subscribe<THandler, TEntity>(THandler instance)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
-        {
-            if (_rabbitMQSetting.UseEasyNetQ)
-            {
-                EasyNetQSubscribe<THandler, TEntity>(instance);
-                return;
-            }
-
-            RabbitMQClientSubscribe<THandler, TEntity>(instance);
-
         }
 
         #region RabbitMQClient
@@ -373,7 +359,7 @@ namespace RemoteEventBus.Impl
         /// <typeparam name="THandler"></typeparam>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="instance"></param>
-        protected virtual void EasyNetQSubscribe<THandler, TEntity>(THandler instance)
+        protected virtual void EasyNetQSubscribe<THandler, TEntity>(THandler instance, string topic)
                  where THandler : IRemoteEventHandler<TEntity>
                  where TEntity : class, new()
         {
@@ -389,28 +375,11 @@ namespace RemoteEventBus.Impl
                 return;
             }
 
-            // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), false)
-                  .Select(o => o as ConnectionLoadBalancingAttribute)
-                .FirstOrDefault();
-            if (loadBalancingAttr != null)
-            {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
-                if (loadBalancingInfo != null)
-                {
-                    _bus.Receive<TEntity>(loadBalancingInfo.Start(), (data) =>
-                    {
-                        instance.HandleEvent(data);
-                    });
-                    return;
-                }
-            }
-
             // 普通的工作队列模式
-            _bus.Receive<TEntity>(handlerType.FullName, (data) =>
-            {
-                instance.HandleEvent(data);
-            });
+            _bus.Receive<TEntity>(topic ?? handlerType.FullName, (data) =>
+              {
+                  instance.HandleEvent(data);
+              });
         }
 
         #endregion

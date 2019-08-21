@@ -23,11 +23,11 @@ namespace RemoteEventBus.Interface
         /// 订阅消息
         /// </summary>
         /// <typeparam name="T">订阅处理器类型</typeparam>
-        void Subscribe<THandler, TEntity>(THandler instance)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new();
-
-        void Subscribe<THandler, TEntity>(THandler instance, string topic)
+        /// <typeparam name="THandler">订阅处理器类型</typeparam>
+        /// <typeparam name="TEntity">响应数据类型</typeparam>
+        /// <param name="instance">处理器实例</param>
+        /// <param name="topic">topic</param>
+        void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new();
     }
