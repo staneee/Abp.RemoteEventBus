@@ -15,7 +15,8 @@ namespace RemoteEventBus.Interface
         /// </summary>
         /// <typeparam name="THandler">处理器类型</typeparam>
         /// <param name="eventData">消息实例</param>
-        void Publish<THandler, TEntity>(TEntity eventData)
+        /// <param name="topic">topic</param>
+        void Publish<THandler, TEntity>(TEntity eventData, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new();
 
@@ -25,7 +26,8 @@ namespace RemoteEventBus.Interface
         /// </summary>
         /// <typeparam name="THandler">处理器类型</typeparam>
         /// <param name="eventData">消息实例</param>
-        Task PublishAsync<THandler, TEntity>(TEntity eventData)
+        /// <param name="topic">topic</param>
+        Task PublishAsync<THandler, TEntity>(TEntity eventData, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new();
 

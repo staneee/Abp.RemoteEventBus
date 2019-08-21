@@ -16,34 +16,21 @@ namespace RemoteEventBus.Impl
 
         }
 
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Publish<THandler, TEntity>(TEntity eventData)
+        public void Publish<THandler, TEntity>(TEntity eventData, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public void Subscribe<THandler, TEntity>(THandler instance)
+        public Task PublishAsync<THandler, TEntity>(TEntity eventData, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public void Subscribe<THandler, TEntity>(THandler instance, string topic)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task PublishAsync<THandler, TEntity>(TEntity eventData)
+        public void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new()
         {
@@ -93,6 +80,11 @@ namespace RemoteEventBus.Impl
         }
 
         public Task UnsubscribeAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
         {
             throw new NotImplementedException();
         }

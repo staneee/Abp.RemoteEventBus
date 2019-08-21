@@ -19,9 +19,9 @@ namespace TestServer
             Common.Init();
             eventBus = Common.IoContainer.GetService<IRemoteEventBus>();
             Common.PrintLine("输入选项开始运行程序", false);
-            Common.PrintLine("1: 负载均衡订阅", false);
-            Common.PrintLine("2: 主题订阅", false);
-            Common.PrintLine("3: 工作队列订阅", false);
+            Common.PrintLine("1: 负载均衡发布模式", false);
+            Common.PrintLine("2: 主题发布模式", false);
+            Common.PrintLine("3: 工作队列发布模式", false);
             var input = Console.ReadLine();
             switch (input.Trim())
             {
@@ -38,42 +38,6 @@ namespace TestServer
                     break;
             }
             Common.Wait("按任意键结束程序...");
-
-            //while (true)
-            //{
-            //    var input = Console.ReadLine();
-            //    if (input == "quit")
-            //    {
-            //        break;
-            //    }
-
-            //    var tryCount = Convert.ToInt32(input);
-
-            //    var list = new List<MyEntity>();
-            //    for (int i = 0; i < tryCount; i++)
-            //    {
-            //        list.Add(new MyEntity
-            //        {
-            //            Buffer = Data.Msg001,
-            //            CreationTime = DateTime.Now
-            //        });
-            //    }
-
-            //    Common.Wait("按回车开始发送数据");
-            //    Common.PrintLine("开始发送");
-            //    //foreach (var item in list)
-            //    //{
-            //    //    eventBus.Publish<MyHandler002, MyEntity>(item);
-            //    //}
-
-            //    Parallel.ForEach(list, (item) =>
-            //    {
-            //        eventBus.Publish<LoadBalancingHandler, MyEntity>(item);
-            //    });
-
-            //    Common.PrintLine("发送完成");
-            //}
-
             eventBus.Dispose();
         }
 

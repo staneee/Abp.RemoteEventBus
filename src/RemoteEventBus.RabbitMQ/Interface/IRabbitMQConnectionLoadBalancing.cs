@@ -20,10 +20,16 @@ namespace RemoteEventBus.Interface
         int MaxSize { get; set; }
 
         /// <summary>
-        /// 获取负载均衡值
+        /// 获取负载均衡键值
         /// </summary>
         /// <returns></returns>
-        string Start();
+        string NextKey();
+
+        /// <summary>
+        /// 获取负载均衡索引
+        /// </summary>
+        /// <returns></returns>
+        int NextIndex();
 
         /// <summary>
         /// 初始化负载均衡配置
@@ -31,7 +37,7 @@ namespace RemoteEventBus.Interface
         void Initialize();
 
         /// <summary>
-        /// 获取所有值
+        /// 获取所有负载均衡值
         /// </summary>
         /// <returns></returns>
         List<string> GetAll();

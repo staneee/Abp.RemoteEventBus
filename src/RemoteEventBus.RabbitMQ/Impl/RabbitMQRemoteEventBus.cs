@@ -65,7 +65,7 @@ namespace RemoteEventBus.Impl
         }
 
 
-        public void Publish<THandler, TEntity>(TEntity eventData)
+        public void Publish<THandler, TEntity>(TEntity eventData, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new()
 
@@ -76,16 +76,16 @@ namespace RemoteEventBus.Impl
                 return;
             }
 
-            RabbitMQClientPublish<THandler, TEntity>(eventData);
+            RabbitMQClientPublish<THandler, TEntity>(eventData, topic);
         }
 
-        public Task PublishAsync<THandler, TEntity>(TEntity eventData)
+        public Task PublishAsync<THandler, TEntity>(TEntity eventData, string topic = null)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new()
         {
             return Task.Factory.StartNew(() =>
             {
-                Publish<THandler, TEntity>(eventData);
+                Publish<THandler, TEntity>(eventData, topic);
             });
         }
 
@@ -120,7 +120,7 @@ namespace RemoteEventBus.Impl
         /// <typeparam name="THandler"></typeparam>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="eventData"></param>
-        protected virtual void RabbitMQClientPublish<THandler, TEntity>(TEntity eventData)
+        protected virtual void RabbitMQClientPublish<THandler, TEntity>(TEntity eventData, string topic)
            where THandler : IRemoteEventHandler<TEntity>
            where TEntity : class, new()
 
@@ -135,7 +135,7 @@ namespace RemoteEventBus.Impl
             // topic特性不为空
             if (topicAttr != null)
             {
-                RabbitMQClientPublish(handlerType.FullName, buffer);
+                RabbitMQClientPublish(topic ?? handlerType.FullName, buffer);
                 return;
             }
 
@@ -146,16 +146,24 @@ namespace RemoteEventBus.Impl
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings
+                    .Find(o => o.HandlerType.FullName == handlerType.FullName);
                 if (loadBalancingInfo != null)
                 {
-                    RabbitMQClientPublish(loadBalancingInfo.Start(), buffer);
+                    if (string.IsNullOrWhiteSpace(topic))
+                    {
+                        RabbitMQClientPublish(loadBalancingInfo.NextKey(), buffer);
+                    }
+                    else
+                    {
+                        RabbitMQClientPublish($"{topic}_{ loadBalancingInfo.NextIndex()}", buffer);
+                    }
                     return;
                 }
             }
 
             // 普通的工作队列模式
-            RabbitMQClientPublish(handlerType.FullName, buffer);
+            RabbitMQClientPublish(topic ?? handlerType.FullName, buffer);
         }
 
         protected virtual void RabbitMQClientPublish(string topic, byte[] buffer)
@@ -341,7 +349,7 @@ namespace RemoteEventBus.Impl
                 var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
                 if (loadBalancingInfo != null)
                 {
-                    _bus.Send(loadBalancingInfo.Start(), eventData);
+                    _bus.Send(loadBalancingInfo.NextKey(), eventData);
                     return;
                 }
             }

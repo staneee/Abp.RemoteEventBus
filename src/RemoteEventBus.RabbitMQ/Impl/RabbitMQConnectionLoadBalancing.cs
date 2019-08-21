@@ -34,24 +34,29 @@ namespace RemoteEventBus.Impl
         public bool Initialized { get; protected set; }
 
 
-        /// <summary>
-        /// 获取一个负载均衡配置
-        /// </summary>
-        /// <returns></returns>
-        public string Start()
+
+        public string NextKey()
         {
             if (Initialized == false)
             {
                 this.Initialize();
             }
 
-            this._currentIndex = NextServerIndex(ServerConfigs);
+            this._currentIndex = this.NextIndex();
             return ServerConfigs[this._currentIndex].Name;
         }
 
-        /// <summary>
-        /// 初始化负载均衡器
-        /// </summary>
+        public int NextIndex()
+        {
+            if (Initialized == false)
+            {
+                this.Initialize();
+            }
+
+            return NextServerIndex(ServerConfigs);
+        }
+
+
         public void Initialize()
         {
             ServerConfigs = new ServerConfig[this.MaxSize];
@@ -97,6 +102,8 @@ namespace RemoteEventBus.Impl
             serverConfigArray[index].Current -= total;
             return index;
         }
+
+
     }
 
 
