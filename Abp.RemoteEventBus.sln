@@ -3,25 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.779
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abp.RemoteEventBus", "src\Abp.RemoteEventBus\Abp.RemoteEventBus.csproj", "{5DB3A38F-FA87-4FF9-9B4D-2F842F111094}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abp.RemoteEventBus.RabbitMQ", "src\Abp.RemoteEventBus.RabbitMQ\Abp.RemoteEventBus.RabbitMQ.csproj", "{E15D541B-BEDE-40FB-BB3C-CA428BC382B7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abp.RemoteEventBus.RabbitMQ.Test", "test\Abp.RemoteEventBus.RabbitMQ.Test\Abp.RemoteEventBus.RabbitMQ.Test.csproj", "{62B7829F-F3B4-43EF-9013-2D7B2DB1EF87}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB909959-39B6-4895-B483-0A4882EE5F0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C713C305-0E88-4A7C-8C2F-23D556F86091}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abp.RemoteEventBus.RabbitMQ.TestServer", "test\Abp.RemoteEventBus.RabbitMQ.TestServer\Abp.RemoteEventBus.RabbitMQ.TestServer.csproj", "{1D79B23A-263F-422E-B6CA-7EC683C8AEB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteEventBus", "src\RemoteEventBus\RemoteEventBus.csproj", "{9D133CCF-48D4-4313-8C3F-65571876519E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteEventBus", "src\RemoteEventBus\RemoteEventBus.csproj", "{9D133CCF-48D4-4313-8C3F-65571876519E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteEventBus.RabbitMQ", "src\RemoteEventBus.RabbitMQ\RemoteEventBus.RabbitMQ.csproj", "{C8E44EF2-7E90-4D62-9A7F-6F89D194FAE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteEventBus.RabbitMQ", "src\RemoteEventBus.RabbitMQ\RemoteEventBus.RabbitMQ.csproj", "{C8E44EF2-7E90-4D62-9A7F-6F89D194FAE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServer", "test\TestServer\TestServer.csproj", "{5BF7F7E0-65FE-426F-91CF-A8507DBCFD09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestServer", "test\TestServer\TestServer.csproj", "{5BF7F7E0-65FE-426F-91CF-A8507DBCFD09}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommon", "test\TestCommon\TestCommon.csproj", "{D7A7E211-B865-493D-947C-3B4B5110FC81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCommon", "test\TestCommon\TestCommon.csproj", "{D7A7E211-B865-493D-947C-3B4B5110FC81}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "test\TestClient\TestClient.csproj", "{D736870B-7B00-4DCC-B636-0D8927ABC161}"
 EndProject
@@ -31,22 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5DB3A38F-FA87-4FF9-9B4D-2F842F111094}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5DB3A38F-FA87-4FF9-9B4D-2F842F111094}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5DB3A38F-FA87-4FF9-9B4D-2F842F111094}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5DB3A38F-FA87-4FF9-9B4D-2F842F111094}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E15D541B-BEDE-40FB-BB3C-CA428BC382B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E15D541B-BEDE-40FB-BB3C-CA428BC382B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E15D541B-BEDE-40FB-BB3C-CA428BC382B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E15D541B-BEDE-40FB-BB3C-CA428BC382B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62B7829F-F3B4-43EF-9013-2D7B2DB1EF87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62B7829F-F3B4-43EF-9013-2D7B2DB1EF87}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62B7829F-F3B4-43EF-9013-2D7B2DB1EF87}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62B7829F-F3B4-43EF-9013-2D7B2DB1EF87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1D79B23A-263F-422E-B6CA-7EC683C8AEB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D79B23A-263F-422E-B6CA-7EC683C8AEB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1D79B23A-263F-422E-B6CA-7EC683C8AEB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D79B23A-263F-422E-B6CA-7EC683C8AEB6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9D133CCF-48D4-4313-8C3F-65571876519E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9D133CCF-48D4-4313-8C3F-65571876519E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D133CCF-48D4-4313-8C3F-65571876519E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -72,10 +48,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{5DB3A38F-FA87-4FF9-9B4D-2F842F111094} = {C713C305-0E88-4A7C-8C2F-23D556F86091}
-		{E15D541B-BEDE-40FB-BB3C-CA428BC382B7} = {C713C305-0E88-4A7C-8C2F-23D556F86091}
-		{62B7829F-F3B4-43EF-9013-2D7B2DB1EF87} = {FB909959-39B6-4895-B483-0A4882EE5F0D}
-		{1D79B23A-263F-422E-B6CA-7EC683C8AEB6} = {FB909959-39B6-4895-B483-0A4882EE5F0D}
 		{9D133CCF-48D4-4313-8C3F-65571876519E} = {C713C305-0E88-4A7C-8C2F-23D556F86091}
 		{C8E44EF2-7E90-4D62-9A7F-6F89D194FAE5} = {C713C305-0E88-4A7C-8C2F-23D556F86091}
 		{5BF7F7E0-65FE-426F-91CF-A8507DBCFD09} = {FB909959-39B6-4895-B483-0A4882EE5F0D}
