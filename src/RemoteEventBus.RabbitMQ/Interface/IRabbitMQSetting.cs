@@ -10,24 +10,14 @@ namespace RemoteEventBus.Interface
     public interface IRabbitMQSetting
     {
         /// <summary>
-        /// 
+        /// 自动重连,默认为true
         /// </summary>
         bool AutomaticRecoveryEnabled { get; set; }
 
         /// <summary>
-        /// RabbitMQ链接字符串
+        /// RabbitMQ/EasyNetQ 链接字符串
         /// </summary>
         string ConnectionString { get; set; }
-
-        /// <summary>
-        /// 连接池初始化大小
-        /// </summary>
-        int InitialSize { get; set; }
-
-        /// <summary>
-        /// 连接池最大数量
-        /// </summary>
-        int MaxSize { get; set; }
 
         /// <summary>
         /// 主题前缀，默认空
@@ -45,7 +35,7 @@ namespace RemoteEventBus.Interface
         List<IRabbitMQConnectionLoadBalancing> LoadBalancings { get; set; }
 
         /// <summary>
-        /// 使用easynetq
+        /// 使用easynetq,默认使用rabbitmq原生sdk
         /// </summary>
         bool UseEasyNetQ { get; set; }
     }

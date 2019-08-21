@@ -4,6 +4,9 @@ using System.Text;
 
 namespace RemoteEventBus.Attributes
 {
+    /// <summary>
+    /// 主题队列特性
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TopicAttribute : Attribute
     {

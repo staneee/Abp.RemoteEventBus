@@ -10,9 +10,14 @@ namespace RemoteEventBus
 {
     public static class RemoteEventBusConfigurationExtension
     {
+        /// <summary>
+        /// 注册添加远程事件总线
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection AddRemoteEventBus(this IServiceCollection services)
         {
-            services.TryAddSingleton(typeof(IRemoteEventBus), typeof(NullRemoteEventBus));
+            services.TryAddSingleton<IRemoteEventBus, NullRemoteEventBus>();
             return services;
         }
     }

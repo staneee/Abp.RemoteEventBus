@@ -19,8 +19,6 @@ namespace TestClient
 
             var eventBus = Common.IoContainer.GetService<IRemoteEventBus>();
 
-
-
             var rabbitMQSetting = Common.IoContainer.GetService<IRabbitMQSetting>();
             var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handelrType.FullName);
             var allKey = loadBalancing.GetAll();
@@ -49,6 +47,7 @@ namespace TestClient
             }
             Common.Wait("按任意键结束程序...");
 
+            eventBus.Dispose();
         }
     }
 }

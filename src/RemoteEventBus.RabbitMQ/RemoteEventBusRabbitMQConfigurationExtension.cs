@@ -1,5 +1,4 @@
-﻿using Commons.Pool;
-using EasyNetQ;
+﻿using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RemoteEventBus.Impl;
@@ -15,19 +14,25 @@ namespace RemoteEventBus
     /// </summary>
     public static class RemoteEventBusRabbitMQConfigurationExtension
     {
+        /// <summary>
+        /// 添加注册RabbitMQ实现的远程事件总线
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="rabbitMQSetting"></param>
+        /// <returns></returns>
         public static IServiceCollection AddRemoteEventBusRabbitMQ(
             this IServiceCollection services,
             Func<RabbitMQSetting> rabbitMQSetting)
         {
-            services.TryAddSingleton<IPoolManager, PoolManager>();
 
             services.TryAddSingleton(typeof(IRabbitMQSetting), (serviceProvider) =>
             {
                 return rabbitMQSetting.Invoke();
             });
 
-            services.TryAddSingleton(typeof(IRemoteEventBus), typeof(RabbitMQRemoteEventBus));
-            services.TryAddSingleton(typeof(ISerializer), typeof(JsonSerializer));
+            services.TryAddSingleton<IRemoteEventBus, RabbitMQRemoteEventBus>();
+            services.TryAddSingleton<ISerializer, JsonSerializer>();
+            services.TryAddSingleton<IRabbitMQConnectionFactory, RabbitMQConnectionFactory>();
 
             return services.AddRemoteEventBus();
         }

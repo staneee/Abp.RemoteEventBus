@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using EasyNetQ;
-using Commons.Pool;
 using RabbitMQ.Client;
 using System.Collections.Concurrent;
 using RabbitMQ.Client.Events;
@@ -28,13 +27,15 @@ namespace RemoteEventBus.Impl
         // 订阅者使用
         private readonly ConcurrentDictionary<string, IModel> _dictionary;
         private readonly List<IConnection> _connectionsAcquired;
-        private readonly RabbitMQConnectionPooledObjectFactory _factory;
+        private readonly IRabbitMQConnectionFactory _factory;
 
+
+        private bool _disposed;
 
         public RabbitMQRemoteEventBus(
             IRabbitMQSetting rabbitMQSetting,
             ISerializer serializer,
-            IPoolManager poolManager
+            IRabbitMQConnectionFactory factory
             )
         {
             // 公用
@@ -54,21 +55,15 @@ namespace RemoteEventBus.Impl
             }
             else
             {
-                //_connectionPool = poolManager.NewPool<IConnection>()
-                //                 .InitialSize(rabbitMQSetting.InitialSize)
-                //                 .MaxSize(rabbitMQSetting.MaxSize)
-                //                 .WithFactory(new RabbitMQConnectionPooledObjectFactory(rabbitMQSetting))
-                //                 .Instance();
-
-
                 _publisherDictionary = new ConcurrentDictionary<string, IModel>();
                 _publisherConnectionsAcquired = new List<IConnection>();
                 // 订阅使用
                 _dictionary = new ConcurrentDictionary<string, IModel>();
                 _connectionsAcquired = new List<IConnection>();
-                _factory = new RabbitMQConnectionPooledObjectFactory(rabbitMQSetting);
+                _factory = factory;
             }
         }
+
 
         public void Publish<THandler, TEntity>(TEntity eventData)
             where THandler : IRemoteEventHandler<TEntity>
@@ -84,6 +79,16 @@ namespace RemoteEventBus.Impl
             RabbitMQClientPublish<THandler, TEntity>(eventData);
         }
 
+        public Task PublishAsync<THandler, TEntity>(TEntity eventData)
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Publish<THandler, TEntity>(eventData);
+            });
+        }
+
         public void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
            where THandler : IRemoteEventHandler<TEntity>
            where TEntity : class, new()
@@ -95,6 +100,16 @@ namespace RemoteEventBus.Impl
             }
 
             RabbitMQClientSubscribe<THandler, TEntity>(instance, topic);
+        }
+
+        public Task SubscribeAsync<THandler, TEntity>(THandler instance, string topic = null)
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Subscribe<THandler, TEntity>(instance, topic);
+            });
         }
 
         #region RabbitMQClient
@@ -213,24 +228,6 @@ namespace RemoteEventBus.Impl
                 return;
             }
 
-            //// 负载均衡模式
-            //var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), false)
-            //      .Select(o => o as ConnectionLoadBalancingAttribute)
-            //    .FirstOrDefault();
-            //if (loadBalancingAttr != null)
-            //{
-            //    var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
-            //    if (loadBalancingInfo != null)
-            //    {
-            //        RabbitMQClientSubscribe(loadBalancingInfo.Start(), (buffer) =>
-            //        {
-            //            var data = (TEntity)_serializer.BytesToMessage(typeof(TEntity), buffer);
-            //            instance.HandleEvent(data);
-            //        }, true);
-            //        return;
-            //    }
-            //}
-
             // 普通的工作队列模式
             RabbitMQClientSubscribe(topic ?? handlerType.FullName, (buffer) =>
             {
@@ -269,6 +266,7 @@ namespace RemoteEventBus.Impl
                         exclusive: false,
                         autoDelete: false,
                         arguments: null);
+                    channel.BasicQos(0, 1, false);
                 }
                 else// 非工作队列,随机队列名称
                 {
@@ -385,11 +383,121 @@ namespace RemoteEventBus.Impl
         #endregion
 
 
-        public void Dispose()
+        #region 取消订阅
+
+        public virtual void Unsubscribe<THandler>(string topic = null)
+             where THandler : class, new()
         {
+            var handlerType = typeof(THandler);
+
+            // 负载均衡模式
+            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), false)
+                  .Select(o => o as ConnectionLoadBalancingAttribute)
+                .FirstOrDefault();
+
+            if (loadBalancingAttr != null)
+            {
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
+                if (loadBalancingInfo != null)
+                {
+                    Unsubscribe(loadBalancingInfo.GetAll());
+                    return;
+                }
+            }
+
+            _dictionary[topic ?? handlerType.FullName].Close();
+            _dictionary[topic ?? handlerType.FullName].Dispose();
+        }
+
+        public virtual Task UnsubscribeAsync<THandler>(string topic = null)
+             where THandler : class, new()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Unsubscribe<THandler>(topic);
+            });
+        }
+
+        public virtual void Unsubscribe(string topic)
+        {
+            if (_dictionary.ContainsKey(topic))
+            {
+                _dictionary[topic].Close();
+                _dictionary[topic].Dispose();
+            }
 
         }
 
+        public virtual Task UnsubscribeAsync(string topic)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Unsubscribe(topic);
+            });
+        }
 
+        public virtual void Unsubscribe(IEnumerable<string> topics)
+        {
+            foreach (var topic in topics)
+            {
+                if (_dictionary.ContainsKey(topic))
+                {
+                    _dictionary[topic].Close();
+                    _dictionary[topic].Dispose();
+                }
+            }
+        }
+
+        public virtual Task UnsubscribeAsync(IEnumerable<string> topics)
+        {
+            return Task.Factory.StartNew(() => Unsubscribe(topics));
+        }
+
+        public virtual void UnsubscribeAll()
+        {
+            Unsubscribe(_dictionary.Select(p => p.Key));
+        }
+
+        public virtual Task UnsubscribeAllAsync()
+        {
+            return Task.Factory.StartNew(UnsubscribeAll);
+        }
+
+        #endregion
+
+        public virtual void Dispose()
+        {
+            if (!_disposed)
+            {
+
+                #region 释放发布者通道
+
+                foreach (var item in _publisherDictionary)
+                {
+                    item.Value.Close();
+                    item.Value.Dispose();
+                }
+
+                #endregion
+
+
+                #region 释放订阅通道
+
+                UnsubscribeAll();
+
+                #endregion
+
+
+                // 释放factory创建的所有资源
+                _factory?.Dispose();
+
+
+                // 释放bus资源
+                _bus?.Dispose();
+
+
+                _disposed = true;
+            }
+        }
     }
 }

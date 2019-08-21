@@ -4,6 +4,9 @@ using System.Text;
 
 namespace RemoteEventBus.Interface
 {
+    /// <summary>
+    /// RabbitMQ 处理器负载均衡配置
+    /// </summary>
     public interface IRabbitMQConnectionLoadBalancing
     {
         /// <summary>

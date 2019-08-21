@@ -51,6 +51,8 @@ namespace TestServer
 
                 Common.PrintLine("发送完成");
             }
+
+            eventBus.Dispose();
         }
     }
 }
