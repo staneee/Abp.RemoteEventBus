@@ -8,7 +8,7 @@ using RemoteEventBus.Interface;
 namespace TestCommon
 {
     [ConnectionLoadBalancing]
-    public class MyHandler002 : IRemoteEventHandler<MyEntity>
+    public class LoadBalancingHandler : IRemoteEventHandler<MyEntity>
     {
         public string Name { get; set; }
 
@@ -24,7 +24,7 @@ namespace TestCommon
 
         public long Count { get; set; }
 
-        public MyHandler002(string name)
+        public LoadBalancingHandler(string name)
         {
             this.Name = name;
             Count = 0;

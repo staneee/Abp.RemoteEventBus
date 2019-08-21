@@ -50,7 +50,7 @@ namespace TestCommon
                 // 配置负载均衡
                 setting.LoadBalancings.Add(new RabbitMQConnectionLoadBalancing()
                 {
-                    HandlerType = typeof(MyHandler002),
+                    HandlerType = typeof(LoadBalancingHandler),
                     MaxSize = 30,
                 });
                 // 负载均衡初始化
