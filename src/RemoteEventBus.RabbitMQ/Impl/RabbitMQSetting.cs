@@ -9,24 +9,22 @@ namespace RemoteEventBus.Impl
     {
         public bool AutomaticRecoveryEnabled { get; set; }
 
+        public bool Persistent { get; set; }
+
         public string ConnectionString { get; set; }
-
-        public int InitialSize { get; set; }
-
-        public int MaxSize { get; set; }
 
         public string TopicPrefix { get; set; }
 
         public string QueuePrefix { get; set; }
 
         public List<IRabbitMQConnectionLoadBalancing> LoadBalancings { get; set; }
+
         public bool UseEasyNetQ { get; set; }
 
         public RabbitMQSetting()
         {
             AutomaticRecoveryEnabled = true;
-            InitialSize = 0;
-            MaxSize = 30;
+            Persistent = true;
             TopicPrefix = string.Empty;
             QueuePrefix = string.Empty;
             LoadBalancings = new List<IRabbitMQConnectionLoadBalancing>();

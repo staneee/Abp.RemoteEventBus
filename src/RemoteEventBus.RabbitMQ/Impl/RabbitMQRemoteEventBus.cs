@@ -189,7 +189,7 @@ namespace RemoteEventBus.Impl
                     arguments: null);
 
                 var properties = channel.CreateBasicProperties();
-                //properties.Persistent = true;
+                properties.Persistent = _rabbitMQSetting.Persistent;
 
                 // topic和通道关联
                 _publisherDictionary[topicName] = channel;

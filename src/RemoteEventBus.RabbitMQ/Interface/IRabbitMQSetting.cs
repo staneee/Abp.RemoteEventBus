@@ -15,17 +15,22 @@ namespace RemoteEventBus.Interface
         bool AutomaticRecoveryEnabled { get; set; }
 
         /// <summary>
+        /// 启用持久化,默认为true
+        /// </summary>
+        bool Persistent { get; set; }
+
+        /// <summary>
         /// RabbitMQ/EasyNetQ 链接字符串
         /// </summary>
         string ConnectionString { get; set; }
 
         /// <summary>
-        /// 主题前缀，默认空
+        /// 主题前缀，默认空字符串
         /// </summary>
         string TopicPrefix { get; set; }
 
         /// <summary>
-        /// 队列前缀，默认空
+        /// 队列前缀，默认空字符串
         /// </summary>
         string QueuePrefix { get; set; }
 
