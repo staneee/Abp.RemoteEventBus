@@ -43,14 +43,15 @@ namespace TestCommon
             {
                 var setting = new RabbitMQSetting()
                 {
-                    ConnectionString = "host=10.3.2.154;username=root;password=ms877350"
+                    //ConnectionString = "host=10.3.2.154;username=root;password=ms877350"
+                    ConnectionString = "amqp://root:ms877350@10.3.2.154:5672/"
                 };
 
                 // 配置负载均衡
                 setting.LoadBalancings.Add(new RabbitMQConnectionLoadBalancing()
                 {
                     HandlerType = typeof(MyHandler002),
-                    MaxSize = 30,
+                    MaxSize = 10,
                 });
                 // 负载均衡初始化
                 setting.LoadBalancings.ForEach(item =>

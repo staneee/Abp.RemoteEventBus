@@ -35,5 +35,12 @@ namespace RemoteEventBus.Impl
         {
             throw new NotImplementedException();
         }
+
+        public void Subscribe<THandler, TEntity>(THandler instance, string topic)
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

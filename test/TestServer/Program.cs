@@ -27,33 +27,29 @@ namespace TestServer
 
                 var tryCount = Convert.ToInt32(input);
 
-                var list = new List<int>();
+                var list = new List<MyEntity>();
                 for (int i = 0; i < tryCount; i++)
                 {
-                    list.Add(i);
-                }
-
-                Common.Wait("按回车开始发送数据");
-
-                foreach (var item in list)
-                {
-                    eventBus.Publish<MyHandler002, MyEntity>(new MyEntity
+                    list.Add(new MyEntity
                     {
                         Buffer = Data.Msg001,
                         CreationTime = DateTime.Now
                     });
                 }
 
-                //Parallel.ForEach(list, (item) =>
+                Common.Wait("按回车开始发送数据");
+                Common.PrintLine("开始发送");
+                //foreach (var item in list)
                 //{
-                //    eventBus.Publish<MyHandler002, MyEntity>(new MyEntity
-                //    {
-                //        Buffer = Data.Msg001,
-                //        CreationTime = DateTime.Now
-                //    });
-                //});
+                //    eventBus.Publish<MyHandler002, MyEntity>(item);
+                //}
 
-                Common.PrintLine("发送完成", false);
+                Parallel.ForEach(list, (item) =>
+                {
+                    eventBus.Publish<MyHandler002, MyEntity>(item);
+                });
+
+                Common.PrintLine("发送完成");
             }
         }
     }

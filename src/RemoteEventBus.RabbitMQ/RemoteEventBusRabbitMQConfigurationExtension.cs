@@ -1,4 +1,5 @@
 ﻿using Commons.Pool;
+using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RemoteEventBus.Impl;
@@ -26,6 +27,7 @@ namespace RemoteEventBus
             });
 
             services.TryAddSingleton(typeof(IRemoteEventBus), typeof(RabbitMQRemoteEventBus));
+            services.TryAddSingleton(typeof(ISerializer), typeof(JsonSerializer));
 
             return services.AddRemoteEventBus();
         }

@@ -20,6 +20,7 @@ namespace RemoteEventBus.Impl
         public string QueuePrefix { get; set; }
 
         public List<IRabbitMQConnectionLoadBalancing> LoadBalancings { get; set; }
+        public bool UseEasyNetQ { get; set; }
 
         public RabbitMQSetting()
         {

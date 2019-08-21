@@ -26,5 +26,9 @@ namespace RemoteEventBus.Interface
         void Subscribe<THandler, TEntity>(THandler instance)
             where THandler : IRemoteEventHandler<TEntity>
             where TEntity : class, new();
+
+        void Subscribe<THandler, TEntity>(THandler instance, string topic)
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new();
     }
 }

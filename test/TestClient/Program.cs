@@ -18,8 +18,12 @@ namespace TestClient
             var handelrType = typeof(MyHandler002);
 
             var eventBus = Common.IoContainer.GetService<IRemoteEventBus>();
+
+
+
             var rabbitMQSetting = Common.IoContainer.GetService<IRabbitMQSetting>();
             var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handelrType.FullName);
+            var allKey = loadBalancing.GetAll();
 
 
             var handlerList = new List<MyHandler002>();
@@ -27,12 +31,11 @@ namespace TestClient
             {
                 var handler = new MyHandler002(i.ToString());
                 handlerList.Add(handler);
-                //eventBus.Subscribe<MyHandler002, MyEntity>(handler);
             }
 
-            Parallel.ForEach(handlerList, (item) =>
+            Parallel.ForEach(handlerList, (item, state, index) =>
             {
-                eventBus.Subscribe<MyHandler002, MyEntity>(item);
+                eventBus.Subscribe<MyHandler002, MyEntity>(item, allKey[int.Parse(index.ToString())]);
             });
 
             Common.Wait("客户端已启动...");

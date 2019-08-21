@@ -43,5 +43,10 @@ namespace RemoteEventBus.Interface
         /// 连接负载均衡配置
         /// </summary>
         List<IRabbitMQConnectionLoadBalancing> LoadBalancings { get; set; }
+
+        /// <summary>
+        /// 使用easynetq
+        /// </summary>
+        bool UseEasyNetQ { get; set; }
     }
 }
