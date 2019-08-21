@@ -10,6 +10,7 @@ namespace RemoteEventBus.Interface
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IRemoteEventHandler<T>
+        where T : class, new()
     {
         void HandleEvent(T data);
     }

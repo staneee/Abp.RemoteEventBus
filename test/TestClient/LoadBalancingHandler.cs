@@ -7,7 +7,7 @@ using RemoteEventBus.Interface;
 
 namespace TestCommon
 {
-    public class LoadBalancingHandler : ILoadBalancingHandler
+    public class LoadBalancingHandler : IRemoteEventHandler<MyEntity>
     {
         public string Name { get; set; }
 
@@ -31,7 +31,6 @@ namespace TestCommon
 
         public void HandleEvent(MyEntity data)
         {
-            //Common.PrintLine($"订阅者 {_name} 收到消息：{data.Content}消息创建时间：{data.CreationTime}");
             if (!Start.HasValue)
             {
                 Start = DateTime.Now;
@@ -39,7 +38,6 @@ namespace TestCommon
 
             Stop = DateTime.Now;
             Count++;
-            //Thread.Sleep(1000);
         }
     }
 }

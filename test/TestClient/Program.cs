@@ -62,7 +62,7 @@ namespace TestClient
 
             Parallel.ForEach(handlerList, (item, state, index) =>
             {
-                eventBus.Subscribe<LoadBalancingHandler, MyEntity>(item, allKey[int.Parse(index.ToString())]);
+                eventBus.Subscribe<MyEntity>(item.HandleEvent, allKey[int.Parse(index.ToString())]);
             });
 
             Common.Wait($"{loadBalancing.MaxSize}个消费者已启动...");
@@ -82,7 +82,8 @@ namespace TestClient
         static void TopicSubscriber()
         {
             var pid = Process.GetCurrentProcess().Id;
-            eventBus.Subscribe<TopicHandler, MyEntity>(new TopicHandler(pid.ToString()));
+            var handler = new TopicHandler(pid.ToString());
+            eventBus.Subscribe<MyEntity>(handler.HandleEvent);
             Common.Wait("主题消费者已启动...");
         }
 
@@ -92,7 +93,8 @@ namespace TestClient
         static void WorkQueueSubscriber()
         {
             var pid = Process.GetCurrentProcess().Id;
-            eventBus.Subscribe<WorkQueueHandler, MyEntity>(new WorkQueueHandler(pid.ToString()));
+            var handler = new WorkQueueHandler(pid.ToString());
+            eventBus.Subscribe<MyEntity>(handler.HandleEvent);
             Common.Wait("工作队列消费者已启动...");
         }
     }

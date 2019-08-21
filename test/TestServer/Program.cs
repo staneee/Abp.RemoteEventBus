@@ -73,7 +73,7 @@ namespace TestServer
 
                 Parallel.ForEach(list, (item) =>
                 {
-                    eventBus.Publish<ILoadBalancingHandler, MyEntity>(item, "LoadBalancingHandler");
+                    eventBus.Publish<MyEntity>(item, TopicConsts.MyLoadBalancing);
                 });
 
                 Common.PrintLine("发送完成");
@@ -95,11 +95,11 @@ namespace TestServer
                     break;
                 }
 
-                eventBus.Publish<ITopicHandler, MyEntity>(new MyEntity()
+                eventBus.Publish<MyEntity>(new MyEntity()
                 {
                     Content = input,
                     CreationTime = DateTime.Now,
-                }, "TopicHandler");
+                }, TopicConsts.MyTopic);
 
                 Common.PrintLine("发送完成");
             }
@@ -120,11 +120,11 @@ namespace TestServer
                     break;
                 }
 
-                eventBus.Publish<IWorkQueueHandler, MyEntity>(new MyEntity()
+                eventBus.Publish<MyEntity>(new MyEntity()
                 {
                     Content = input,
                     CreationTime = DateTime.Now,
-                }, "WorkQueueHandler");
+                }, TopicConsts.MyWorkQueue);
 
                 Common.PrintLine("发送完成");
             }

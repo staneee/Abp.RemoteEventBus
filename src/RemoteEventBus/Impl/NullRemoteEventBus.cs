@@ -16,40 +16,32 @@ namespace RemoteEventBus.Impl
 
         }
 
-        public void Publish<THandler, TEntity>(TEntity eventData, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public void Publish<TEventData>(TEventData eventData, string topic = null) where TEventData : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public Task PublishAsync<THandler, TEntity>(TEntity eventData, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public Task PublishAsync<TEventData>(TEventData eventData, string topic = null) where TEventData : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public void Subscribe<TEventData>(Action<TEventData> invoke, string topic = null) where TEventData : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public Task SubscribeAsync<THandler, TEntity>(THandler instance, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public Task SubscribeAsync<TEventData>(Action<TEventData> invoke, string topic = null) where TEventData : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public void Unsubscribe<THandler>(string topic = null) where THandler : class, new()
+        public void Unsubscribe<TEventData>(string topic = null) where TEventData : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public Task UnsubscribeAsync<THandler>(string topic = null) where THandler : class, new()
+        public Task UnsubscribeAsync<TEventData>(string topic = null) where TEventData : class, new()
         {
             throw new NotImplementedException();
         }

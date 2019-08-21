@@ -5,7 +5,7 @@ using RemoteEventBus.Interface;
 
 namespace TestCommon
 {
-    public class WorkQueueHandler : IWorkQueueHandler
+    public class WorkQueueHandler : IRemoteEventHandler<MyEntity>
     {
         private readonly string _name;
         public WorkQueueHandler(string name)

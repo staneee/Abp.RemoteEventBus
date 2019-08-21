@@ -7,7 +7,7 @@ namespace RemoteEventBus.Attributes
     /// <summary>
     /// 负载均衡特性
     /// </summary>
-    [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class ConnectionLoadBalancingAttribute : Attribute
     {
 

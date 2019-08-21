@@ -13,63 +13,53 @@ namespace RemoteEventBus.Interface
         /// <summary>
         /// 发布消息到订阅的处理器 同步
         /// </summary>
-        /// <typeparam name="THandler">处理器类型</typeparam>
         /// <param name="eventData">消息实例</param>
         /// <param name="topic">topic</param>
-        void Publish<THandler, TEntity>(TEntity eventData, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new();
+        void Publish<TEventData>(TEventData eventData, string topic = null)
+            where TEventData : class, new();
 
 
         /// <summary>
-        /// 发布消息到订阅的处理器 同步
+        /// 发布消息到订阅的处理器 异步
         /// </summary>
-        /// <typeparam name="THandler">处理器类型</typeparam>
         /// <param name="eventData">消息实例</param>
         /// <param name="topic">topic</param>
-        Task PublishAsync<THandler, TEntity>(TEntity eventData, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new();
+        Task PublishAsync<TEventData>(TEventData eventData, string topic = null)
+            where TEventData : class, new();
 
         /// <summary>
         /// 订阅消息
         /// </summary>
-        /// <typeparam name="T">订阅处理器类型</typeparam>
-        /// <typeparam name="THandler">订阅处理器类型</typeparam>
-        /// <typeparam name="TEntity">响应数据类型</typeparam>
+        /// <typeparam name="TEventData">响应数据类型</typeparam>
         /// <param name="instance">处理器实例</param>
         /// <param name="topic">topic</param>
-        void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new();
+        void Subscribe<TEventData>(Action<TEventData> invoke, string topic = null)
+            where TEventData : class, new();
 
         /// <summary>
         /// 订阅消息
         /// </summary>
-        /// <typeparam name="T">订阅处理器类型</typeparam>
-        /// <typeparam name="THandler">订阅处理器类型</typeparam>
-        /// <typeparam name="TEntity">响应数据类型</typeparam>
+        /// <typeparam name="TEventData">响应数据类型</typeparam>
         /// <param name="instance">处理器实例</param>
         /// <param name="topic">topic</param>
-        Task SubscribeAsync<THandler, TEntity>(THandler instance, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new();
+        Task SubscribeAsync<TEventData>(Action<TEventData> invoke, string topic = null)
+            where TEventData : class, new();
 
         /// <summary>
         /// 取消订阅
         /// </summary>
-        /// <typeparam name="THandler">订阅处理器类型</typeparam>
+        /// <typeparam name="TEventData">订阅处理器类型</typeparam>
         /// <param name="topic">topic</param>
-        void Unsubscribe<THandler>(string topic = null)
-                where THandler : class, new();
+        void Unsubscribe<TEventData>(string topic = null)
+                where TEventData : class, new();
 
         /// <summary>
         /// 取消订阅 异步
         /// </summary>
-        /// <typeparam name="THandler">订阅处理器类型</typeparam>
+        /// <typeparam name="TEventData">订阅处理器类型</typeparam>
         /// <param name="topic">topic</param>
-        Task UnsubscribeAsync<THandler>(string topic = null)
-             where THandler : class, new();
+        Task UnsubscribeAsync<TEventData>(string topic = null)
+             where TEventData : class, new();
 
 
         /// <summary>

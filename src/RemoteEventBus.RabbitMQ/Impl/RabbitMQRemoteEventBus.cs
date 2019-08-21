@@ -65,50 +65,46 @@ namespace RemoteEventBus.Impl
         }
 
 
-        public void Publish<THandler, TEntity>(TEntity eventData, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public void Publish<TEventData>(TEventData eventData, string topic = null)
+            where TEventData : class, new()
 
         {
             if (_rabbitMQSetting.UseEasyNetQ)
             {
-                EasyNetQPublish<THandler, TEntity>(eventData);
+                EasyNetQPublish<TEventData>(eventData);
                 return;
             }
 
-            RabbitMQClientPublish<THandler, TEntity>(eventData, topic);
+            RabbitMQClientPublish<TEventData>(eventData, topic);
         }
 
-        public Task PublishAsync<THandler, TEntity>(TEntity eventData, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public Task PublishAsync<TEventData>(TEventData eventData, string topic = null)
+            where TEventData : class, new()
         {
             return Task.Factory.StartNew(() =>
             {
-                Publish<THandler, TEntity>(eventData, topic);
+                Publish<TEventData>(eventData, topic);
             });
         }
 
-        public void Subscribe<THandler, TEntity>(THandler instance, string topic = null)
-           where THandler : IRemoteEventHandler<TEntity>
-           where TEntity : class, new()
+        public void Subscribe<TEventData>(Action<TEventData> invoke, string topic = null)
+           where TEventData : class, new()
         {
             if (_rabbitMQSetting.UseEasyNetQ)
             {
-                EasyNetQSubscribe<THandler, TEntity>(instance, topic);
+                EasyNetQSubscribe<TEventData>(invoke, topic);
                 return;
             }
 
-            RabbitMQClientSubscribe<THandler, TEntity>(instance, topic);
+            RabbitMQClientSubscribe<TEventData>(invoke, topic);
         }
 
-        public Task SubscribeAsync<THandler, TEntity>(THandler instance, string topic = null)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        public Task SubscribeAsync<TEventData>(Action<TEventData> invoke, string topic = null)
+            where TEventData : class, new()
         {
             return Task.Factory.StartNew(() =>
             {
-                Subscribe<THandler, TEntity>(instance, topic);
+                Subscribe<TEventData>(invoke, topic);
             });
         }
 
@@ -117,31 +113,29 @@ namespace RemoteEventBus.Impl
         /// <summary>
         /// RabbitMQ发布
         /// </summary>
-        /// <typeparam name="THandler"></typeparam>
-        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TEventData"></typeparam>
         /// <param name="eventData"></param>
-        protected virtual void RabbitMQClientPublish<THandler, TEntity>(TEntity eventData, string topic)
-           where THandler : IRemoteEventHandler<TEntity>
-           where TEntity : class, new()
+        protected virtual void RabbitMQClientPublish<TEventData>(TEventData eventData, string topic)
+           where TEventData : class, new()
 
         {
-            var handlerType = typeof(THandler);
-            var buffer = _serializer.MessageToBytes(typeof(TEntity), eventData);
+            var keyType = typeof(TEventData);
+            var buffer = _serializer.MessageToBytes(typeof(TEventData), eventData);
 
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
+            var topicAttr = keyType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
 
             // topic特性不为空
             if (topicAttr != null)
             {
-                RabbitMQClientPublish(CreateKey(topic ?? handlerType.Name), buffer);
+                RabbitMQClientPublish(CreateKey(topic ?? keyType.Name), buffer);
                 return;
             }
 
 
             // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
+            var loadBalancingAttr = keyType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
                   .Select(o => o as ConnectionLoadBalancingAttribute)
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
@@ -166,7 +160,7 @@ namespace RemoteEventBus.Impl
             }
 
             // 普通的工作队列模式
-            RabbitMQClientPublish(CreateKey(topic ?? handlerType.Name), buffer);
+            RabbitMQClientPublish(CreateKey(topic ?? keyType.Name), buffer);
         }
 
         protected virtual void RabbitMQClientPublish(string topic, byte[] buffer)
@@ -208,27 +202,26 @@ namespace RemoteEventBus.Impl
         /// <summary>
         /// RabbitMQ订阅
         /// </summary>
-        /// <typeparam name="THandler"></typeparam>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="instance"></param>
-        protected virtual void RabbitMQClientSubscribe<THandler, TEntity>(THandler instance, string topic = null)
-                 where THandler : IRemoteEventHandler<TEntity>
-                 where TEntity : class, new()
+        /// <typeparam name="TEventData"></typeparam>
+        /// <param name="invoke"></param>
+        protected virtual void RabbitMQClientSubscribe<TEventData>(Action<TEventData> invoke, string topic = null)
+                 where TEventData : class, new()
         {
-            var handlerType = typeof(THandler);
+            var keyType = typeof(TEventData);
 
-            var key = CreateKey(topic ?? handlerType.Name);
+            var key = CreateKey(topic ?? keyType.Name);
 
             // topic模式
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
+            var topicAttr = keyType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
             if (topicAttr != null)
             {
                 RabbitMQClientSubscribe(key, (buffer) =>
                   {
-                      var data = (TEntity)_serializer.BytesToMessage(typeof(TEntity), buffer);
-                      instance.HandleEvent(data);
+                      invoke(
+                            (TEventData)_serializer.BytesToMessage(typeof(TEventData), buffer)
+                        );
                   }, false);
                 return;
             }
@@ -236,8 +229,9 @@ namespace RemoteEventBus.Impl
             // 普通的工作队列模式
             RabbitMQClientSubscribe(key, (buffer) =>
             {
-                var data = (TEntity)_serializer.BytesToMessage(typeof(TEntity), buffer);
-                instance.HandleEvent(data);
+                invoke(
+                        (TEventData)_serializer.BytesToMessage(typeof(TEventData), buffer)
+                    );
             }, true);
         }
 
@@ -319,17 +313,15 @@ namespace RemoteEventBus.Impl
         /// <summary>
         /// EasyNetQ发布
         /// </summary>
-        /// <typeparam name="THandler"></typeparam>
-        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TEventData"></typeparam>
         /// <param name="eventData"></param>
-        protected virtual void EasyNetQPublish<THandler, TEntity>(TEntity eventData)
-            where THandler : IRemoteEventHandler<TEntity>
-            where TEntity : class, new()
+        protected virtual void EasyNetQPublish<TEventData>(TEventData eventData)
+            where TEventData : class, new()
 
         {
-            var handlerType = typeof(THandler);
+            var keyType = typeof(TEventData);
 
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
+            var topicAttr = keyType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
 
@@ -342,12 +334,12 @@ namespace RemoteEventBus.Impl
 
 
             // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
+            var loadBalancingAttr = keyType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
                   .Select(o => o as ConnectionLoadBalancingAttribute)
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == handlerType.Name);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == keyType.Name);
                 if (loadBalancingInfo != null)
                 {
                     _bus.Send(loadBalancingInfo.NextKey(), eventData);
@@ -356,37 +348,36 @@ namespace RemoteEventBus.Impl
             }
 
             // 普通的工作队列模式
-            _bus.Send(handlerType.Name, eventData);
+            _bus.Send(keyType.Name, eventData);
 
         }
 
         /// <summary>
         /// EasyNetQ订阅
         /// </summary>
-        /// <typeparam name="THandler"></typeparam>
-        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TEventData"></typeparam>
         /// <param name="instance"></param>
-        protected virtual void EasyNetQSubscribe<THandler, TEntity>(THandler instance, string topic)
-                 where THandler : IRemoteEventHandler<TEntity>
-                 where TEntity : class, new()
+        protected virtual void EasyNetQSubscribe<TEventData>(Action<TEventData> invoke, string topic)
+                 where TEventData : class, new()
         {
-            var handlerType = typeof(THandler);
+            var keyType = typeof(TEventData);
 
             // topic模式
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
+            var topicAttr = keyType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
             if (topicAttr != null)
             {
-                _bus.Subscribe<TEntity>(Guid.NewGuid().ToString(), instance.HandleEvent);
+                //TEntity
+                _bus.Subscribe(Guid.NewGuid().ToString(), invoke);
                 return;
             }
 
             // 普通的工作队列模式
-            _bus.Receive<TEntity>(topic ?? handlerType.Name, (data) =>
-              {
-                  instance.HandleEvent(data);
-              });
+            _bus.Receive<TEventData>(topic ?? keyType.Name, (data) =>
+            {
+                invoke(data);
+            });
         }
 
         #endregion
@@ -394,19 +385,19 @@ namespace RemoteEventBus.Impl
 
         #region 取消订阅
 
-        public virtual void Unsubscribe<THandler>(string topic = null)
-             where THandler : class, new()
+        public virtual void Unsubscribe<TEventData>(string topic = null)
+             where TEventData : class, new()
         {
-            var handlerType = typeof(THandler);
+            var keyType = typeof(TEventData);
 
             // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
+            var loadBalancingAttr = keyType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
                   .Select(o => o as ConnectionLoadBalancingAttribute)
                 .FirstOrDefault();
 
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == handlerType.Name);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == keyType.Name);
                 if (loadBalancingInfo != null)
                 {
                     Unsubscribe(loadBalancingInfo.GetAll());
@@ -414,17 +405,17 @@ namespace RemoteEventBus.Impl
                 }
             }
 
-            var key = CreateKey(topic ?? handlerType.Name);
+            var key = CreateKey(topic ?? keyType.Name);
             _dictionary[key].Close();
             _dictionary[key].Dispose();
         }
 
-        public virtual Task UnsubscribeAsync<THandler>(string topic = null)
-             where THandler : class, new()
+        public virtual Task UnsubscribeAsync<TEventData>(string topic = null)
+             where TEventData : class, new()
         {
             return Task.Factory.StartNew(() =>
             {
-                Unsubscribe<THandler>(topic);
+                Unsubscribe<TEventData>(topic);
             });
         }
 
