@@ -49,7 +49,7 @@ namespace TestClient
             var handelrType = typeof(LoadBalancingHandler);
 
             var rabbitMQSetting = Common.IoContainer.GetService<IRabbitMQSetting>();
-            var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handelrType.FullName);
+            var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == handelrType.Name);
             var allKey = loadBalancing.GetAll();
 
 

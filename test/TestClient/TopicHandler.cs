@@ -6,8 +6,7 @@ using System.Text;
 
 namespace TestCommon
 {
-    [Topic]
-    public class TopicHandler : IRemoteEventHandler<MyEntity>
+    public class TopicHandler : ITopicHandler
     {
         private readonly string _name;
 

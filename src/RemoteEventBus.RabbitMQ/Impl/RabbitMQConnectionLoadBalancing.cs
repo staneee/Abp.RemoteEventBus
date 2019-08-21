@@ -20,10 +20,22 @@ namespace RemoteEventBus.Impl
         /// </summary>
         protected virtual ServerConfig[] ServerConfigs { get; set; }
 
+        private string _handlerType;
         /// <summary>
         /// 负载均衡的事件处理器类型
         /// </summary>
-        public virtual Type HandlerType { get; set; }
+        public virtual string HandlerType
+        {
+            get => this._handlerType;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentNullException("The parameter handlerType cannot be empty!");
+                }
+                _handlerType = value;
+            }
+        }
         /// <summary>
         /// 最大数量
         /// </summary>
@@ -33,7 +45,10 @@ namespace RemoteEventBus.Impl
         /// </summary>
         public bool Initialized { get; protected set; }
 
-
+        public RabbitMQConnectionLoadBalancing(string handlerType)
+        {
+            HandlerType = handlerType;
+        }
 
         public string NextKey()
         {
@@ -65,7 +80,7 @@ namespace RemoteEventBus.Impl
                 ServerConfigs[i] = new ServerConfig()
                 {
                     Weight = 1,
-                    Name = $"{HandlerType.FullName}_{i}"
+                    Name = $"{HandlerType}_{i}"
                 };
             }
             Initialized = true;

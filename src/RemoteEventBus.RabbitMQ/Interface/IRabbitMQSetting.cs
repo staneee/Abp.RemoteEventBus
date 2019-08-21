@@ -25,14 +25,10 @@ namespace RemoteEventBus.Interface
         string ConnectionString { get; set; }
 
         /// <summary>
-        /// 主题前缀，默认空字符串
+        /// 前缀，默认空字符串
         /// </summary>
-        string TopicPrefix { get; set; }
+        string Prefix { get; set; }
 
-        /// <summary>
-        /// 队列前缀，默认空字符串
-        /// </summary>
-        string QueuePrefix { get; set; }
 
         /// <summary>
         /// 连接负载均衡配置

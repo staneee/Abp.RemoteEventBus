@@ -7,8 +7,7 @@ using RemoteEventBus.Interface;
 
 namespace TestCommon
 {
-    [ConnectionLoadBalancing]
-    public class LoadBalancingHandler : IRemoteEventHandler<MyEntity>
+    public class LoadBalancingHandler : ILoadBalancingHandler
     {
         public string Name { get; set; }
 

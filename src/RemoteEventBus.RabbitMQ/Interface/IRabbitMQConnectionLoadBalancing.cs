@@ -12,7 +12,7 @@ namespace RemoteEventBus.Interface
         /// <summary>
         /// 处理器的类型
         /// </summary>
-        Type HandlerType { get; set; }
+        string HandlerType { get; set; }
 
         /// <summary>
         /// 处理器负载最大数量

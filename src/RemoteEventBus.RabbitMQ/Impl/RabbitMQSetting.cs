@@ -13,9 +13,7 @@ namespace RemoteEventBus.Impl
 
         public string ConnectionString { get; set; }
 
-        public string TopicPrefix { get; set; }
-
-        public string QueuePrefix { get; set; }
+        public string Prefix { get; set; }
 
         public List<IRabbitMQConnectionLoadBalancing> LoadBalancings { get; set; }
 
@@ -25,8 +23,7 @@ namespace RemoteEventBus.Impl
         {
             AutomaticRecoveryEnabled = true;
             Persistent = true;
-            TopicPrefix = string.Empty;
-            QueuePrefix = string.Empty;
+            Prefix = string.Empty;
             LoadBalancings = new List<IRabbitMQConnectionLoadBalancing>();
         }
     }

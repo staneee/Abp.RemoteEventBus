@@ -128,42 +128,45 @@ namespace RemoteEventBus.Impl
             var handlerType = typeof(THandler);
             var buffer = _serializer.MessageToBytes(typeof(TEntity), eventData);
 
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), false)
+            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
 
             // topic特性不为空
             if (topicAttr != null)
             {
-                RabbitMQClientPublish(topic ?? handlerType.FullName, buffer);
+                RabbitMQClientPublish(CreateKey(topic ?? handlerType.Name), buffer);
                 return;
             }
 
 
             // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), false)
+            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
                   .Select(o => o as ConnectionLoadBalancingAttribute)
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
             {
                 var loadBalancingInfo = _rabbitMQSetting.LoadBalancings
-                    .Find(o => o.HandlerType.FullName == handlerType.FullName);
+                    .Find(o => o.HandlerType == topic);
                 if (loadBalancingInfo != null)
                 {
                     if (string.IsNullOrWhiteSpace(topic))
                     {
-                        RabbitMQClientPublish(loadBalancingInfo.NextKey(), buffer);
+                        RabbitMQClientPublish(CreateKey(loadBalancingInfo.NextKey()), buffer);
                     }
                     else
                     {
-                        RabbitMQClientPublish($"{topic}_{ loadBalancingInfo.NextIndex()}", buffer);
+                        RabbitMQClientPublish(
+                            CreateKey($"{topic}_{ loadBalancingInfo.NextIndex()}"),
+                            buffer
+                            );
                     }
                     return;
                 }
             }
 
             // 普通的工作队列模式
-            RabbitMQClientPublish(topic ?? handlerType.FullName, buffer);
+            RabbitMQClientPublish(CreateKey(topic ?? handlerType.Name), buffer);
         }
 
         protected virtual void RabbitMQClientPublish(string topic, byte[] buffer)
@@ -176,37 +179,29 @@ namespace RemoteEventBus.Impl
                 channel = connection.CreateModel();
             }
 
-            try
-            {
-                var topicName = topic;
-                var body = buffer;
+
+            var topicName = topic;
+            var body = buffer;
 
 
-                channel.ExchangeDeclare(exchange: topicName,
-                    type: ExchangeType.Fanout,
-                    durable: false,
-                    autoDelete: false,
-                    arguments: null);
+            channel.ExchangeDeclare(exchange: topicName,
+                type: ExchangeType.Fanout,
+                durable: false,
+                autoDelete: false,
+                arguments: null);
 
-                var properties = channel.CreateBasicProperties();
-                properties.Persistent = _rabbitMQSetting.Persistent;
+            var properties = channel.CreateBasicProperties();
+            properties.Persistent = _rabbitMQSetting.Persistent;
 
-                // topic和通道关联
-                _publisherDictionary[topicName] = channel;
+            // topic和通道关联
+            _publisherDictionary[topicName] = channel;
 
-                channel.BasicPublish(
-                    exchange: topicName,
-                    routingKey: topicName,
-                    basicProperties: properties,
-                    body: body);
-            }
-            finally
-            {
-                //if (connection != null)
-                //{
-                //    _publisherConnectionsAcquired.Remove(connection);
-                //}
-            }
+            channel.BasicPublish(
+                exchange: topicName,
+                routingKey: topicName,
+                basicProperties: properties,
+                body: body);
+
         }
 
 
@@ -222,13 +217,15 @@ namespace RemoteEventBus.Impl
         {
             var handlerType = typeof(THandler);
 
+            var key = CreateKey(topic ?? handlerType.Name);
+
             // topic模式
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), false)
+            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
             if (topicAttr != null)
             {
-                RabbitMQClientSubscribe(topic ?? handlerType.FullName, (buffer) =>
+                RabbitMQClientSubscribe(key, (buffer) =>
                   {
                       var data = (TEntity)_serializer.BytesToMessage(typeof(TEntity), buffer);
                       instance.HandleEvent(data);
@@ -237,7 +234,7 @@ namespace RemoteEventBus.Impl
             }
 
             // 普通的工作队列模式
-            RabbitMQClientSubscribe(topic ?? handlerType.FullName, (buffer) =>
+            RabbitMQClientSubscribe(key, (buffer) =>
             {
                 var data = (TEntity)_serializer.BytesToMessage(typeof(TEntity), buffer);
                 instance.HandleEvent(data);
@@ -302,6 +299,10 @@ namespace RemoteEventBus.Impl
                 // topic和通道关联
                 _dictionary[topicName] = channel;
             }
+            catch (Exception e)
+            {
+                throw e;
+            }
             finally
             {
                 _connectionsAcquired.Remove(connection);
@@ -328,7 +329,7 @@ namespace RemoteEventBus.Impl
         {
             var handlerType = typeof(THandler);
 
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), false)
+            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
 
@@ -341,12 +342,12 @@ namespace RemoteEventBus.Impl
 
 
             // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), false)
+            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
                   .Select(o => o as ConnectionLoadBalancingAttribute)
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == handlerType.Name);
                 if (loadBalancingInfo != null)
                 {
                     _bus.Send(loadBalancingInfo.NextKey(), eventData);
@@ -355,7 +356,7 @@ namespace RemoteEventBus.Impl
             }
 
             // 普通的工作队列模式
-            _bus.Send(handlerType.FullName, eventData);
+            _bus.Send(handlerType.Name, eventData);
 
         }
 
@@ -372,7 +373,7 @@ namespace RemoteEventBus.Impl
             var handlerType = typeof(THandler);
 
             // topic模式
-            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), false)
+            var topicAttr = handlerType.GetCustomAttributes(typeof(TopicAttribute), true)
                 .Select(o => o as TopicAttribute)
                 .FirstOrDefault();
             if (topicAttr != null)
@@ -382,7 +383,7 @@ namespace RemoteEventBus.Impl
             }
 
             // 普通的工作队列模式
-            _bus.Receive<TEntity>(topic ?? handlerType.FullName, (data) =>
+            _bus.Receive<TEntity>(topic ?? handlerType.Name, (data) =>
               {
                   instance.HandleEvent(data);
               });
@@ -399,13 +400,13 @@ namespace RemoteEventBus.Impl
             var handlerType = typeof(THandler);
 
             // 负载均衡模式
-            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), false)
+            var loadBalancingAttr = handlerType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
                   .Select(o => o as ConnectionLoadBalancingAttribute)
                 .FirstOrDefault();
 
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType.FullName == handlerType.FullName);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == handlerType.Name);
                 if (loadBalancingInfo != null)
                 {
                     Unsubscribe(loadBalancingInfo.GetAll());
@@ -413,8 +414,9 @@ namespace RemoteEventBus.Impl
                 }
             }
 
-            _dictionary[topic ?? handlerType.FullName].Close();
-            _dictionary[topic ?? handlerType.FullName].Dispose();
+            var key = CreateKey(topic ?? handlerType.Name);
+            _dictionary[key].Close();
+            _dictionary[key].Dispose();
         }
 
         public virtual Task UnsubscribeAsync<THandler>(string topic = null)
@@ -428,6 +430,7 @@ namespace RemoteEventBus.Impl
 
         public virtual void Unsubscribe(string topic)
         {
+            topic = CreateKey(topic);
             if (_dictionary.ContainsKey(topic))
             {
                 _dictionary[topic].Close();
@@ -446,6 +449,7 @@ namespace RemoteEventBus.Impl
 
         public virtual void Unsubscribe(IEnumerable<string> topics)
         {
+            topics = topics.Select(o => CreateKey(o));
             foreach (var topic in topics)
             {
                 if (_dictionary.ContainsKey(topic))
@@ -472,6 +476,22 @@ namespace RemoteEventBus.Impl
         }
 
         #endregion
+
+
+        /// <summary>
+        /// 创建队列键值
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        protected virtual string CreateKey(string str)
+        {
+            if (string.IsNullOrWhiteSpace(this._rabbitMQSetting.Prefix))
+            {
+                return str;
+            }
+
+            return $"{this._rabbitMQSetting.Prefix}_{str}";
+        }
 
         public virtual void Dispose()
         {
