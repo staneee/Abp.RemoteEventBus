@@ -15,8 +15,8 @@ namespace RemoteEventBus.Interface
         /// </summary>
         /// <param name="eventData">消息实例</param>
         /// <param name="topic">topic</param>
-        void Publish<TEventData>(TEventData eventData, string topic = null)
-            where TEventData : class, new();
+        void Publish<TEventData>(string topic, TEventData eventData)
+            where TEventData : class;
 
 
         /// <summary>
@@ -24,43 +24,26 @@ namespace RemoteEventBus.Interface
         /// </summary>
         /// <param name="eventData">消息实例</param>
         /// <param name="topic">topic</param>
-        Task PublishAsync<TEventData>(TEventData eventData, string topic = null)
-            where TEventData : class, new();
+        Task PublishAsync<TEventData>(string topic, TEventData eventData)
+            where TEventData : class;
 
         /// <summary>
         /// 订阅消息
         /// </summary>
         /// <typeparam name="TEventData">响应数据类型</typeparam>
-        /// <param name="instance">处理器实例</param>
         /// <param name="topic">topic</param>
-        void Subscribe<TEventData>(Action<TEventData> invoke, string topic = null)
-            where TEventData : class, new();
+        /// <param name="invoke">处理器实例</param>
+        void Subscribe<TEventData>(string topic, Action<TEventData> invoke)
+            where TEventData : class;
 
         /// <summary>
         /// 订阅消息
         /// </summary>
         /// <typeparam name="TEventData">响应数据类型</typeparam>
-        /// <param name="instance">处理器实例</param>
         /// <param name="topic">topic</param>
-        Task SubscribeAsync<TEventData>(Action<TEventData> invoke, string topic = null)
-            where TEventData : class, new();
-
-        /// <summary>
-        /// 取消订阅
-        /// </summary>
-        /// <typeparam name="TEventData">订阅处理器类型</typeparam>
-        /// <param name="topic">topic</param>
-        void Unsubscribe<TEventData>(string topic = null)
-                where TEventData : class, new();
-
-        /// <summary>
-        /// 取消订阅 异步
-        /// </summary>
-        /// <typeparam name="TEventData">订阅处理器类型</typeparam>
-        /// <param name="topic">topic</param>
-        Task UnsubscribeAsync<TEventData>(string topic = null)
-             where TEventData : class, new();
-
+        /// <param name="instance">订阅处理函数</param>
+        Task SubscribeAsync<TEventData>(string topic, Action<TEventData> invoke)
+            where TEventData : class;
 
         /// <summary>
         /// 取消订阅

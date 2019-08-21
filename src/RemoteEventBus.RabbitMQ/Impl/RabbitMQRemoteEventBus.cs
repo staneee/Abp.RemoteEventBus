@@ -64,49 +64,52 @@ namespace RemoteEventBus.Impl
             }
         }
 
-
-        public void Publish<TEventData>(TEventData eventData, string topic = null)
-            where TEventData : class, new()
-
+        public virtual void Publish<TEventData>(string topic, TEventData eventData)
+            where TEventData : class
         {
+            CheckNotNull(topic);
+
             if (_rabbitMQSetting.UseEasyNetQ)
             {
-                EasyNetQPublish<TEventData>(eventData);
+                EasyNetQPublish(topic, eventData);
                 return;
             }
 
-            RabbitMQClientPublish<TEventData>(eventData, topic);
+            RabbitMQClientPublish(topic, eventData);
         }
 
-        public Task PublishAsync<TEventData>(TEventData eventData, string topic = null)
-            where TEventData : class, new()
+        public virtual Task PublishAsync<TEventData>(string topic, TEventData eventData)
+            where TEventData : class
         {
             return Task.Factory.StartNew(() =>
             {
-                Publish<TEventData>(eventData, topic);
+                Publish(topic, eventData);
             });
         }
 
-        public void Subscribe<TEventData>(Action<TEventData> invoke, string topic = null)
-           where TEventData : class, new()
+        public virtual void Subscribe<TEventData>(string topic, Action<TEventData> invoke)
+            where TEventData : class
         {
+            CheckNotNull(topic);
+
             if (_rabbitMQSetting.UseEasyNetQ)
             {
-                EasyNetQSubscribe<TEventData>(invoke, topic);
+                EasyNetQSubscribe(topic, invoke);
                 return;
             }
 
-            RabbitMQClientSubscribe<TEventData>(invoke, topic);
+            RabbitMQClientSubscribe<TEventData>(topic, invoke);
         }
 
-        public Task SubscribeAsync<TEventData>(Action<TEventData> invoke, string topic = null)
-            where TEventData : class, new()
+        public virtual Task SubscribeAsync<TEventData>(string topic, Action<TEventData> invoke)
+            where TEventData : class
         {
             return Task.Factory.StartNew(() =>
             {
-                Subscribe<TEventData>(invoke, topic);
+                Subscribe(topic, invoke);
             });
         }
+
 
         #region RabbitMQClient
 
@@ -114,10 +117,10 @@ namespace RemoteEventBus.Impl
         /// RabbitMQ发布
         /// </summary>
         /// <typeparam name="TEventData"></typeparam>
+        /// <param name="topic"></param>
         /// <param name="eventData"></param>
-        protected virtual void RabbitMQClientPublish<TEventData>(TEventData eventData, string topic)
-           where TEventData : class, new()
-
+        protected virtual void RabbitMQClientPublish<TEventData>(string topic, TEventData eventData)
+           where TEventData : class
         {
             var keyType = typeof(TEventData);
             var buffer = _serializer.MessageToBytes(typeof(TEventData), eventData);
@@ -203,9 +206,10 @@ namespace RemoteEventBus.Impl
         /// RabbitMQ订阅
         /// </summary>
         /// <typeparam name="TEventData"></typeparam>
+        /// <param name="topic"></param>
         /// <param name="invoke"></param>
-        protected virtual void RabbitMQClientSubscribe<TEventData>(Action<TEventData> invoke, string topic = null)
-                 where TEventData : class, new()
+        protected virtual void RabbitMQClientSubscribe<TEventData>(string topic, Action<TEventData> invoke)
+                 where TEventData : class
         {
             var keyType = typeof(TEventData);
 
@@ -315,8 +319,8 @@ namespace RemoteEventBus.Impl
         /// </summary>
         /// <typeparam name="TEventData"></typeparam>
         /// <param name="eventData"></param>
-        protected virtual void EasyNetQPublish<TEventData>(TEventData eventData)
-            where TEventData : class, new()
+        protected virtual void EasyNetQPublish<TEventData>(string topic, TEventData eventData)
+            where TEventData : class
 
         {
             var keyType = typeof(TEventData);
@@ -328,10 +332,9 @@ namespace RemoteEventBus.Impl
             // topic特性不为空
             if (topicAttr != null)
             {
-                _bus.Publish(eventData);
+                _bus.Publish(eventData, CreateKey(topic));
                 return;
             }
-
 
             // 负载均衡模式
             var loadBalancingAttr = keyType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
@@ -339,16 +342,16 @@ namespace RemoteEventBus.Impl
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == keyType.Name);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == topic);
                 if (loadBalancingInfo != null)
                 {
-                    _bus.Send(loadBalancingInfo.NextKey(), eventData);
+                    _bus.Send(CreateKey(loadBalancingInfo.NextKey()), eventData);
                     return;
                 }
             }
 
             // 普通的工作队列模式
-            _bus.Send(keyType.Name, eventData);
+            _bus.Send(CreateKey(topic), eventData);
 
         }
 
@@ -357,8 +360,8 @@ namespace RemoteEventBus.Impl
         /// </summary>
         /// <typeparam name="TEventData"></typeparam>
         /// <param name="instance"></param>
-        protected virtual void EasyNetQSubscribe<TEventData>(Action<TEventData> invoke, string topic)
-                 where TEventData : class, new()
+        protected virtual void EasyNetQSubscribe<TEventData>(string topic, Action<TEventData> invoke)
+                 where TEventData : class
         {
             var keyType = typeof(TEventData);
 
@@ -384,40 +387,6 @@ namespace RemoteEventBus.Impl
 
 
         #region 取消订阅
-
-        public virtual void Unsubscribe<TEventData>(string topic = null)
-             where TEventData : class, new()
-        {
-            var keyType = typeof(TEventData);
-
-            // 负载均衡模式
-            var loadBalancingAttr = keyType.GetCustomAttributes(typeof(ConnectionLoadBalancingAttribute), true)
-                  .Select(o => o as ConnectionLoadBalancingAttribute)
-                .FirstOrDefault();
-
-            if (loadBalancingAttr != null)
-            {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == keyType.Name);
-                if (loadBalancingInfo != null)
-                {
-                    Unsubscribe(loadBalancingInfo.GetAll());
-                    return;
-                }
-            }
-
-            var key = CreateKey(topic ?? keyType.Name);
-            _dictionary[key].Close();
-            _dictionary[key].Dispose();
-        }
-
-        public virtual Task UnsubscribeAsync<TEventData>(string topic = null)
-             where TEventData : class, new()
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                Unsubscribe<TEventData>(topic);
-            });
-        }
 
         public virtual void Unsubscribe(string topic)
         {
@@ -484,6 +453,14 @@ namespace RemoteEventBus.Impl
             return $"{this._rabbitMQSetting.Prefix}_{str}";
         }
 
+        protected static void CheckNotNull(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                throw new ArgumentNullException("The value cannot be empty");
+            }
+        }
+
         public virtual void Dispose()
         {
             if (!_disposed)
@@ -518,5 +495,7 @@ namespace RemoteEventBus.Impl
                 _disposed = true;
             }
         }
+
+
     }
 }

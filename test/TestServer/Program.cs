@@ -58,10 +58,10 @@ namespace TestServer
 
                 var tryCount = Convert.ToInt32(input);
 
-                var list = new List<MyEntity>();
+                var list = new List<MyCBEntity>();
                 for (int i = 0; i < tryCount; i++)
                 {
-                    list.Add(new MyEntity
+                    list.Add(new MyCBEntity
                     {
                         Buffer = Data.Msg001,
                         CreationTime = DateTime.Now
@@ -73,7 +73,7 @@ namespace TestServer
 
                 Parallel.ForEach(list, (item) =>
                 {
-                    eventBus.Publish(item, TopicConsts.MyLoadBalancing);
+                    eventBus.Publish(TopicConsts.MyLoadBalancing, item);
                 });
 
                 Common.PrintLine("发送完成");
@@ -95,11 +95,11 @@ namespace TestServer
                     break;
                 }
 
-                eventBus.Publish<MyEntity>(new MyEntity()
+                eventBus.Publish<MyTopicEntity>(TopicConsts.MyTopic, new MyTopicEntity()
                 {
                     Content = input,
                     CreationTime = DateTime.Now,
-                }, TopicConsts.MyTopic);
+                });
 
                 Common.PrintLine("发送完成");
             }
@@ -120,11 +120,11 @@ namespace TestServer
                     break;
                 }
 
-                eventBus.Publish<MyEntity>(new MyEntity()
+                eventBus.Publish<MyWorkQueueEntity>(TopicConsts.MyWorkQueue, new MyWorkQueueEntity()
                 {
                     Content = input,
                     CreationTime = DateTime.Now,
-                }, TopicConsts.MyWorkQueue);
+                });
 
                 Common.PrintLine("发送完成");
             }

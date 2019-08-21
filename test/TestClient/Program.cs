@@ -46,26 +46,30 @@ namespace TestClient
         /// </summary>
         static void LoadBalancingsSubscriber()
         {
-            var keyType = typeof(MyEntity);
-
             var rabbitMQSetting = Common.IoContainer.GetService<IRabbitMQSetting>();
+
+            // 获取所有的负载均衡key
             var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == TopicConsts.MyLoadBalancing);
             var allKey = loadBalancing.GetAll();
 
-
-            var handlerList = new List<LoadBalancingHandler>();
+            // 创建负载均衡处理者
+            var handlerList = new List<MyHandler>();
             for (int i = 0; i < loadBalancing.MaxSize; i++)
             {
-                var handler = new LoadBalancingHandler(i.ToString());
+                var handler = new MyHandler(i.ToString());
                 handlerList.Add(handler);
             }
 
+            // 添加订阅
             Parallel.ForEach(handlerList, (item, state, index) =>
             {
-                eventBus.Subscribe<MyEntity>(item.HandleEvent, allKey[int.Parse(index.ToString())]);
+                var key = allKey[int.Parse(index.ToString())];
+                eventBus.Subscribe<MyCBEntity>(key, item.HandleEvent);
             });
 
             Common.Wait($"{loadBalancing.MaxSize}个消费者已启动...");
+
+            // 输出消费信息
             foreach (var handler in handlerList)
             {
                 if (!handler.Start.HasValue || !handler.Stop.HasValue)
@@ -82,8 +86,11 @@ namespace TestClient
         static void TopicSubscriber()
         {
             var pid = Process.GetCurrentProcess().Id;
-            var handler = new TopicHandler(pid.ToString());
-            eventBus.Subscribe<MyEntity>(handler.HandleEvent, TopicConsts.MyTopic);
+            var handler = new MyHandler(pid.ToString());
+            eventBus.Subscribe<byte[]>(TopicConsts.MyTopic, (a) =>
+            {
+
+            });
             Common.Wait("主题消费者已启动...");
         }
 
@@ -93,8 +100,8 @@ namespace TestClient
         static void WorkQueueSubscriber()
         {
             var pid = Process.GetCurrentProcess().Id;
-            var handler = new WorkQueueHandler(pid.ToString());
-            eventBus.Subscribe<MyEntity>(handler.HandleEvent, TopicConsts.MyWorkQueue);
+            var handler = new MyHandler(pid.ToString());
+            eventBus.Subscribe<MyCBEntity>(TopicConsts.MyWorkQueue, handler.HandleEvent);
             Common.Wait("工作队列消费者已启动...");
         }
     }

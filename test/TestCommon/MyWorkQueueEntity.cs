@@ -5,8 +5,7 @@ using System.Text;
 
 namespace TestCommon
 {
-    [ConnectionLoadBalancing]
-    public class MyEntity
+    public class MyWorkQueueEntity
     {
         public string Content { get; set; }
 
