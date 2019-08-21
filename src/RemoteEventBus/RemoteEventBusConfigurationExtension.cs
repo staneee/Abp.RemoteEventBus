@@ -12,11 +12,7 @@ namespace RemoteEventBus
     {
         public static IServiceCollection AddRemoteEventBus(this IServiceCollection services)
         {
-            services.TryAddSingleton(typeof(IRemoteEventSerializer), typeof(JsonRemoteEventSerializer));
             services.TryAddSingleton(typeof(IRemoteEventBus), typeof(NullRemoteEventBus));
-            services.TryAddSingleton(typeof(IRemoteEventPublisher), typeof(NullRemoteEventPublisher));
-            services.TryAddSingleton(typeof(IRemoteEventSubscriber), typeof(NullRemoteEventSubscriber));
-
             return services;
         }
     }

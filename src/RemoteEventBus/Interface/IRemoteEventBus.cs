@@ -16,13 +16,15 @@ namespace RemoteEventBus.Interface
         /// <typeparam name="THandler">处理器类型</typeparam>
         /// <param name="eventData">消息实例</param>
         void Publish<THandler, TEntity>(TEntity eventData)
-            where THandler : IRemoteEventHandler<TEntity>;
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new();
 
         /// <summary>
         /// 订阅消息
         /// </summary>
         /// <typeparam name="T">订阅处理器类型</typeparam>
         void Subscribe<THandler, TEntity>(THandler instance)
-            where THandler : IRemoteEventHandler<TEntity>;
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new();
     }
 }

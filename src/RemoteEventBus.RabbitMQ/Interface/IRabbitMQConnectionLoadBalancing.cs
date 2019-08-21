@@ -15,5 +15,22 @@ namespace RemoteEventBus.Interface
         /// 处理器负载最大数量
         /// </summary>
         int MaxSize { get; set; }
+
+        /// <summary>
+        /// 获取负载均衡值
+        /// </summary>
+        /// <returns></returns>
+        string Start();
+
+        /// <summary>
+        /// 初始化负载均衡配置
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
+        /// 获取所有值
+        /// </summary>
+        /// <returns></returns>
+        List<string> GetAll();
     }
 }

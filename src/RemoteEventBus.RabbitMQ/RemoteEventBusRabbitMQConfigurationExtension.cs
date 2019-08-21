@@ -26,9 +26,6 @@ namespace RemoteEventBus
             });
 
             services.TryAddSingleton(typeof(IRemoteEventBus), typeof(RabbitMQRemoteEventBus));
-            services.TryAddSingleton(typeof(IRemoteEventPublisher), typeof(RabbitMQRemoteEventPublisher));
-            services.TryAddSingleton(typeof(IRemoteEventSubscriber), typeof(RabbitMQRemoteEventSubscriber));
-
 
             return services.AddRemoteEventBus();
         }

@@ -15,7 +15,7 @@ namespace RemoteEventBus
         {
             _connectionFactory = new ConnectionFactory
             {
-                Uri = new Uri(rabbitMQSetting.Url),
+                Uri = new Uri(rabbitMQSetting.ConnectionString),
                 AutomaticRecoveryEnabled = true
             };
         }

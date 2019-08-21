@@ -8,4 +8,13 @@
     <ProjectReference Include="..\..\src\RemoteEventBus.RabbitMQ\RemoteEventBus.RabbitMQ.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Msg001.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Msg002.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

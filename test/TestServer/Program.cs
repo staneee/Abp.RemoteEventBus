@@ -4,6 +4,8 @@ using RemoteEventBus;
 using RemoteEventBus.Impl;
 using RemoteEventBus.Interface;
 using TestCommon;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TestServer
 {
@@ -22,11 +24,36 @@ namespace TestServer
                 {
                     break;
                 }
-                eventBus.Publish<MyHandler, MyEntity>(new MyEntity
+
+                var tryCount = Convert.ToInt32(input);
+
+                var list = new List<int>();
+                for (int i = 0; i < tryCount; i++)
                 {
-                    Content = input,
-                    CreationTime = DateTime.Now
-                });
+                    list.Add(i);
+                }
+
+                Common.Wait("按回车开始发送数据");
+
+                foreach (var item in list)
+                {
+                    eventBus.Publish<MyHandler002, MyEntity>(new MyEntity
+                    {
+                        Buffer = Data.Msg001,
+                        CreationTime = DateTime.Now
+                    });
+                }
+
+                //Parallel.ForEach(list, (item) =>
+                //{
+                //    eventBus.Publish<MyHandler002, MyEntity>(new MyEntity
+                //    {
+                //        Buffer = Data.Msg001,
+                //        CreationTime = DateTime.Now
+                //    });
+                //});
+
+                Common.PrintLine("发送完成", false);
             }
         }
     }

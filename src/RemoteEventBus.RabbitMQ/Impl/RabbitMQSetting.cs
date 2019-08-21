@@ -9,7 +9,7 @@ namespace RemoteEventBus.Impl
     {
         public bool AutomaticRecoveryEnabled { get; set; }
 
-        public string Url { get; set; }
+        public string ConnectionString { get; set; }
 
         public int InitialSize { get; set; }
 

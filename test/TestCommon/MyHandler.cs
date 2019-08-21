@@ -13,9 +13,9 @@ namespace TestCommon
             this._name = name;
         }
 
-        public void HandleEvent(string topic, MyEntity data)
+        public void HandleEvent(MyEntity data)
         {
-            Common.PrintLine($"订阅者 {_name} 收到消息：{data.Content}消息创建时间：{data.CreationTime}");
+            //Common.PrintLine($"订阅者 {_name} 收到消息：{data.Content}消息创建时间：{data.CreationTime}");
         }
     }
 }

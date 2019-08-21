@@ -9,5 +9,8 @@ namespace TestCommon
         public string Content { get; set; }
 
         public DateTime CreationTime { get; set; }
+
+        public byte[] Buffer { get; set; }
+
     }
 }

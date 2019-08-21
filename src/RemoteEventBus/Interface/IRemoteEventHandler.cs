@@ -7,6 +7,6 @@ namespace RemoteEventBus.Interface
 {
     public interface IRemoteEventHandler<T>
     {
-        void HandleEvent(string topic, T data);
+        void HandleEvent(T data);
     }
 }

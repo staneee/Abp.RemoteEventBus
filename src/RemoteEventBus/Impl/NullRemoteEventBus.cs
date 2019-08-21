@@ -22,12 +22,16 @@ namespace RemoteEventBus.Impl
             throw new NotImplementedException();
         }
 
-        public void Publish<THandler, TEntity>(TEntity eventData) where THandler : IRemoteEventHandler<TEntity>
+        public void Publish<THandler, TEntity>(TEntity eventData)
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new()
         {
             throw new NotImplementedException();
         }
 
-        public void Subscribe<THandler, TEntity>(THandler instance) where THandler : IRemoteEventHandler<TEntity>
+        public void Subscribe<THandler, TEntity>(THandler instance)
+            where THandler : IRemoteEventHandler<TEntity>
+            where TEntity : class, new()
         {
             throw new NotImplementedException();
         }

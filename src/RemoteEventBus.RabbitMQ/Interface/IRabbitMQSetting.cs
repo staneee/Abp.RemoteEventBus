@@ -17,7 +17,7 @@ namespace RemoteEventBus.Interface
         /// <summary>
         /// RabbitMQ链接字符串
         /// </summary>
-        string Url { get; set; }
+        string ConnectionString { get; set; }
 
         /// <summary>
         /// 连接池初始化大小
