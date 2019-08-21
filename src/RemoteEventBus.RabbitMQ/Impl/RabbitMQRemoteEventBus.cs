@@ -141,7 +141,7 @@ namespace RemoteEventBus.Impl
             if (loadBalancingAttr != null)
             {
                 var loadBalancingInfo = _rabbitMQSetting.LoadBalancings
-                    .Find(o => o.HandlerType == topic);
+                    .Find(o => o.PrimaryKey == topic);
                 if (loadBalancingInfo != null)
                 {
                     if (string.IsNullOrWhiteSpace(topic))
@@ -339,7 +339,7 @@ namespace RemoteEventBus.Impl
                 .FirstOrDefault();
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == keyType.Name);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == keyType.Name);
                 if (loadBalancingInfo != null)
                 {
                     _bus.Send(loadBalancingInfo.NextKey(), eventData);
@@ -397,7 +397,7 @@ namespace RemoteEventBus.Impl
 
             if (loadBalancingAttr != null)
             {
-                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == keyType.Name);
+                var loadBalancingInfo = _rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == keyType.Name);
                 if (loadBalancingInfo != null)
                 {
                     Unsubscribe(loadBalancingInfo.GetAll());

@@ -24,7 +24,7 @@ namespace RemoteEventBus.Impl
         /// <summary>
         /// 负载均衡的事件处理器类型
         /// </summary>
-        public virtual string HandlerType
+        public virtual string PrimaryKey
         {
             get => this._handlerType;
             set
@@ -45,9 +45,9 @@ namespace RemoteEventBus.Impl
         /// </summary>
         public bool Initialized { get; protected set; }
 
-        public RabbitMQConnectionLoadBalancing(string handlerType)
+        public RabbitMQConnectionLoadBalancing(string primaryKey)
         {
-            HandlerType = handlerType;
+            PrimaryKey = primaryKey;
         }
 
         public string NextKey()
@@ -80,7 +80,7 @@ namespace RemoteEventBus.Impl
                 ServerConfigs[i] = new ServerConfig()
                 {
                     Weight = 1,
-                    Name = $"{HandlerType}_{i}"
+                    Name = $"{PrimaryKey}_{i}"
                 };
             }
             Initialized = true;

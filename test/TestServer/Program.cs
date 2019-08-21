@@ -73,7 +73,7 @@ namespace TestServer
 
                 Parallel.ForEach(list, (item) =>
                 {
-                    eventBus.Publish<MyEntity>(item, TopicConsts.MyLoadBalancing);
+                    eventBus.Publish(item, TopicConsts.MyLoadBalancing);
                 });
 
                 Common.PrintLine("发送完成");

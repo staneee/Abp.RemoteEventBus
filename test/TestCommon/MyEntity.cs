@@ -1,9 +1,11 @@
-﻿using System;
+﻿using RemoteEventBus.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace TestCommon
 {
+    [ConnectionLoadBalancing]
     public class MyEntity
     {
         public string Content { get; set; }

@@ -48,7 +48,7 @@ namespace TestCommon
                 };
 
                 // 配置负载均衡
-                setting.LoadBalancings.Add(new RabbitMQConnectionLoadBalancing("LoadBalancingHandler")
+                setting.LoadBalancings.Add(new RabbitMQConnectionLoadBalancing(TopicConsts.MyLoadBalancing)
                 {
                     MaxSize = 30,
                 });

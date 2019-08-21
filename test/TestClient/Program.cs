@@ -46,10 +46,10 @@ namespace TestClient
         /// </summary>
         static void LoadBalancingsSubscriber()
         {
-            var handelrType = typeof(LoadBalancingHandler);
+            var keyType = typeof(MyEntity);
 
             var rabbitMQSetting = Common.IoContainer.GetService<IRabbitMQSetting>();
-            var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.HandlerType == handelrType.Name);
+            var loadBalancing = rabbitMQSetting.LoadBalancings.Find(o => o.PrimaryKey == TopicConsts.MyLoadBalancing);
             var allKey = loadBalancing.GetAll();
 
 
@@ -83,7 +83,7 @@ namespace TestClient
         {
             var pid = Process.GetCurrentProcess().Id;
             var handler = new TopicHandler(pid.ToString());
-            eventBus.Subscribe<MyEntity>(handler.HandleEvent);
+            eventBus.Subscribe<MyEntity>(handler.HandleEvent, TopicConsts.MyTopic);
             Common.Wait("主题消费者已启动...");
         }
 
@@ -94,7 +94,7 @@ namespace TestClient
         {
             var pid = Process.GetCurrentProcess().Id;
             var handler = new WorkQueueHandler(pid.ToString());
-            eventBus.Subscribe<MyEntity>(handler.HandleEvent);
+            eventBus.Subscribe<MyEntity>(handler.HandleEvent, TopicConsts.MyWorkQueue);
             Common.Wait("工作队列消费者已启动...");
         }
     }

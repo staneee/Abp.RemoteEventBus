@@ -10,9 +10,9 @@ namespace RemoteEventBus.Interface
     public interface IRabbitMQConnectionLoadBalancing
     {
         /// <summary>
-        /// 处理器的类型
+        /// 负载均衡主键
         /// </summary>
-        string HandlerType { get; set; }
+        string PrimaryKey { get; set; }
 
         /// <summary>
         /// 处理器负载最大数量
