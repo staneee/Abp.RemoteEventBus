@@ -17,7 +17,6 @@ namespace TestCommon
 
 
 
-
         /// <summary>
         /// 创建服务注册器
         /// </summary>
@@ -36,6 +35,9 @@ namespace TestCommon
             IoContainer = services.BuildServiceProvider();
         }
 
+        /// <summary>
+        /// 初始化
+        /// </summary>
         public static void Init()
         {
             var services = CreateServiceCollection();
@@ -64,6 +66,11 @@ namespace TestCommon
         }
 
 
+        /// <summary>
+        /// 打印
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="hasDateTime"></param>
         public static void PrintLine(string msg, bool hasDateTime = true)
         {
             if (hasDateTime)
@@ -74,6 +81,11 @@ namespace TestCommon
             Console.WriteLine(msg);
         }
 
+        /// <summary>
+        /// 打印并等待
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="hasDateTime"></param>
         public static void Wait(string msg, bool hasDateTime = false)
         {
             PrintLine(msg, hasDateTime);

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace TestCommon
 {
+    /// <summary>
+    /// 负载均衡Dto
+    /// </summary>
     [ConnectionLoadBalancing]
     public class MyCBEntity
     {

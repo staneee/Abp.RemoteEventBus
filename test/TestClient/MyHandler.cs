@@ -45,6 +45,7 @@ namespace TestClient
             Common.PrintLine($"主题队列 {Name} 收到消息：{data.Content} 消息创建时间：{data.CreationTime}");
         }
 
+
         public void HandleEvent(MyWorkQueueEntity data)
         {
             Common.PrintLine($"工作队列 {Name} 收到消息：{data.Content} 消息创建时间：{data.CreationTime}");

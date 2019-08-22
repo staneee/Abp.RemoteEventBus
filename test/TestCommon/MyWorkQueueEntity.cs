@@ -5,6 +5,9 @@ using System.Text;
 
 namespace TestCommon
 {
+    /// <summary>
+    /// 普通工作队列Dto
+    /// </summary>
     public class MyWorkQueueEntity
     {
         public string Content { get; set; }

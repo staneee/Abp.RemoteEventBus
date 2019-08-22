@@ -5,6 +5,9 @@ using System.Text;
 
 namespace TestCommon
 {
+    /// <summary>
+    /// Topic消息Dto
+    /// </summary>
     [Topic]
     public class MyTopicEntity
     {
